@@ -1,6 +1,6 @@
 {
   "name": "Islands",
-  "description": "Two travelers on opposite shores must reach their distant docks.",
+  "description": "Two wanderers cross an endless sea.",
   "difficulty": "Medium",
   "stars": { "three": 12, "two": 16, "one": 20 },
   "cubes": [

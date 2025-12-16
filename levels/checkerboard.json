@@ -1,6 +1,6 @@
 {
   "name": "Checkerboard",
-  "description": "A 5x5 checkerboard with one missing square for sliding room—fill the pattern with blues and whites.",
+  "description": "Light and shadow dance in perfect harmony.",
   "difficulty": "Hard",
   "stars": { "three": 70, "two": 90, "one": 120 },
   "cubes": [

@@ -1,6 +1,6 @@
 {
   "name": "Yin-Yang",
-  "description": "Form a yin-yang swirl on the 5x5 board with blue and white tops; exactly one cube per goal (21 cubes) and four empty corners for movement.",
+  "description": "Balance emerges from the eternal dance.",
   "difficulty": "Hard",
   "stars": { "three": 44, "two": 60, "one": 78 },
   "cubes": [

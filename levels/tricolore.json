@@ -1,6 +1,6 @@
 {
   "name": "Tricolore",
-  "description": "Rearrange the cubes into a 3x3 tricolor flag (green, white, red) using the rest of the board as sliding space.",
+  "description": "Three colors rise in perfect union.",
   "difficulty": "Medium",
   "stars": { "three": 18, "two": 24, "one": 32 },
   "cubes": [

@@ -1,6 +1,6 @@
 {
   "name": "Crossroads",
-  "description": "Guide four cubes to form a perfect cross at the center.",
+  "description": "Four paths converge where all journeys meet.",
   "difficulty": "Medium",
   "stars": { "three": 20, "two": 26, "one": 32 },
   "cubes": [

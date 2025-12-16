@@ -1,6 +1,6 @@
 {
   "name": "Zigzag",
-  "description": "Weave across the board to the far corner without getting turned around.",
+  "description": "A winding path leads to distant shores.",
   "difficulty": "Easy",
   "stars": { "three": 8, "two": 12, "one": 16 },
   "cubes": [
