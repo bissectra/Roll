@@ -1,0 +1,243 @@
+const winDiv = document.getElementById("win");
+const GRID = 5;
+const CELL = 80;
+const CUBE = CELL * 0.85;
+const PICK_RADIUS = CELL * 0.45;
+const DRAG_THRESHOLD = 20;
+const ANIM_MS = 250;
+const COLORS = {
+  white: [240, 240, 250],
+  yellow: [255, 240, 60],
+  green: [60, 220, 140],
+  blue: [60, 140, 220],
+  red: [255, 60, 60],
+  orange: [255, 165, 0],
+};
+const ROLL = {
+  north: (o) => ({ top: o.south, bottom: o.north, north: o.top, south: o.bottom, east: o.east, west: o.west }),
+  south: (o) => ({ top: o.north, bottom: o.south, north: o.bottom, south: o.top, east: o.east, west: o.west }),
+  east: (o) => ({ top: o.west, bottom: o.east, east: o.top, west: o.bottom, north: o.north, south: o.south }),
+  west: (o) => ({ top: o.east, bottom: o.west, east: o.bottom, west: o.top, north: o.north, south: o.south }),
+};
+
+function quad(p, a, b, c, d, color) {
+  p.noStroke();
+  p.fill(...COLORS[color]);
+  p.beginShape();
+  [a, b, c, d].forEach(v => p.vertex(...v));
+  p.endShape(p.CLOSE);
+}
+
+function drawCube(p, o) {
+  const h = CUBE / 2;
+  const p000 = [-h, -h, -h], p001 = [-h, -h, h], p010 = [-h, h, -h], p011 = [-h, h, h];
+  const p100 = [h, -h, -h], p101 = [h, -h, h], p110 = [h, h, -h], p111 = [h, h, h];
+  quad(p, p001, p101, p111, p011, o.top);
+  quad(p, p000, p010, p110, p100, o.bottom);
+  quad(p, p011, p111, p110, p010, o.south);
+  quad(p, p000, p100, p101, p001, o.north);
+  quad(p, p101, p100, p110, p111, o.east);
+  quad(p, p000, p001, p011, p010, o.west);
+}
+
+let cubes = [];
+let goals = [];
+let anim = null;
+let ready = false;
+let nextLevel = null;
+let dragging = false;
+let dragDX = 0, dragDY = 0;
+let pickedCube = null;
+
+const inside = (x, y) => x >= 0 && x < GRID && y >= 0 && y < GRID;
+
+const occupied = (x, y, ignore = null) =>
+  cubes.some((c) => c !== ignore && c.x === x && c.y === y);
+
+const world = (x, y) => {
+  const r = (GRID * CELL) / 2;
+  return [-r + CELL / 2 + x * CELL, -r + CELL / 2 + y * CELL];
+};
+
+function drawGoal(p, g) {
+  const [cx, cy] = world(g.x, g.y);
+  p.push();
+  p.translate(cx, cy, 1);
+  p.noStroke();
+  p.fill(...COLORS[g.top], 120);
+  p.circle(0, 0, CELL * 0.5);
+  p.pop();
+}
+
+const ease = (t) => t * t * (3 - 2 * t);
+
+function rotationAngles(dir, e) {
+  const a = (-e * Math.PI) / 2;
+  if (dir === "north") return { rx: -a, ry: 0 };
+  if (dir === "south") return { rx: a, ry: 0 };
+  if (dir === "east") return { rx: 0, ry: -a };
+  if (dir === "west") return { rx: 0, ry: a };
+  return { rx: 0, ry: 0 };
+}
+
+function goalsSatisfied() {
+  return goals.every((g) =>
+    cubes.some((c) => c.x === g.x && c.y === g.y && c.o.top === g.top)
+  );
+}
+
+function pickCubeAtMouse(p) {
+  const mx = p.mouseX - p.width / 2;
+  const my = p.mouseY - p.height / 2;
+
+  let best = null;
+  let bestD = PICK_RADIUS;
+
+  for (const c of cubes) {
+    const [cx, cy] = world(c.x, c.y);
+    const d = Math.hypot(mx - cx, my - cy);
+    if (d < bestD) {
+      bestD = d;
+      best = c;
+    }
+  }
+  return best;
+}
+
+function getLevelName() {
+  const parts = window.location.pathname.split("/").filter(Boolean);
+  if (parts.length === 0) return "tutorial";
+  const lastPart = parts[parts.length - 1];
+  if (!lastPart || lastPart === "index.html" || lastPart.endsWith(".html")) return "tutorial";
+  return lastPart;
+}
+
+async function loadLevel() {
+  const level = getLevelName();
+  if (window.location.pathname === "/") window.history.replaceState(null, "", "./tutorial");
+  const baseUrl = window.location.origin + "/";
+  const url = new URL(`levels/${level}.json`, baseUrl);
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    cubes = data.cubes.map((c) => ({
+      x: c.x,
+      y: c.y,
+      o: { ...c.orientation },
+    }));
+    goals = data.goals || [];
+    nextLevel = data.nextLevel || null;
+    ready = true;
+    document.title = "Cube Roll – " + level;
+    console.log("Loaded", url.href);
+  } catch (e) {
+    alert("Failed to load " + url.href);
+    console.error(e);
+  }
+}
+
+new p5((p) => {
+  p.setup = () => {
+    p.createCanvas(innerWidth, innerHeight, p.WEBGL);
+    loadLevel();
+  };
+
+  p.draw = () => {
+    if (!ready) return;
+    p.background(20);
+    const r = (GRID * CELL) / 2;
+    p.stroke(150);
+    p.noFill();
+    for (let i = 0; i <= GRID; i++) {
+      const t = -r + i * CELL;
+      p.line(t, -r, 0, t, r, 0);
+      p.line(-r, t, 0, r, t, 0);
+    }
+    goals.forEach((g) => drawGoal(p, g));
+    cubes.forEach((c) => {
+      if (anim && anim.cube === c && !anim.newCube) return;
+      const [cx, cy] = world(c.x, c.y);
+      p.push();
+      p.translate(cx, cy, CUBE / 2);
+      drawCube(p, c.o);
+      p.pop();
+    });
+    if (anim) {
+      const raw = Math.min((p.millis() - anim.t0) / ANIM_MS, 1);
+      const e = ease(raw);
+      const x = p.lerp(anim.x0, anim.x1, e);
+      const y = p.lerp(anim.y0, anim.y1, e);
+      const ang = rotationAngles(anim.dir, e);
+      const [cx, cy] = world(x, y);
+      p.push();
+      p.translate(cx, cy, CUBE / 2);
+      if (ang.rx) p.rotateX(ang.rx);
+      if (ang.ry) p.rotateY(ang.ry);
+      drawCube(p, anim.oldO);
+      p.pop();
+      if (raw >= 0.95 && !anim.newCube) {
+        anim.cube.x = anim.x1;
+        anim.cube.y = anim.y1;
+        anim.cube.o = ROLL[anim.dir](anim.oldO);
+        anim.newCube = true;
+      }
+      if (raw >= 1) anim = null;
+    }
+    winDiv.style.opacity = goalsSatisfied() ? "1" : "0";
+  };
+
+  p.mousePressed = () => {
+    if (!ready || anim) return;
+    dragging = true;
+    dragDX = dragDY = 0;
+    pickedCube = pickCubeAtMouse(p);
+  };
+
+  p.mouseDragged = () => {
+    if (dragging) {
+      dragDX += p.movedX;
+      dragDY += p.movedY;
+    }
+  };
+
+  p.mouseReleased = () => {
+    dragging = false;
+    if (!ready || anim || !pickedCube) return;
+    if (Math.hypot(dragDX, dragDY) < DRAG_THRESHOLD) return;
+
+    const dir =
+      Math.abs(dragDX) > Math.abs(dragDY)
+        ? dragDX > 0
+          ? "east"
+          : "west"
+        : dragDY > 0
+        ? "south"
+        : "north";
+
+    const nx = pickedCube.x + (dir === "east") - (dir === "west");
+    const ny = pickedCube.y + (dir === "south") - (dir === "north");
+    if (!inside(nx, ny)) return;
+    if (occupied(nx, ny, pickedCube)) return;
+
+    anim = {
+      cube: pickedCube,
+      dir,
+      t0: p.millis(),
+      x0: pickedCube.x,
+      y0: pickedCube.y,
+      x1: nx,
+      y1: ny,
+      oldO: { ...pickedCube.o },
+      newCube: false,
+    };
+  };
+
+  p.keyPressed = () => {
+    if (goalsSatisfied() && nextLevel) {
+      window.location.pathname = `/${nextLevel}`;
+    }
+  };
+
+  p.windowResized = () => p.resizeCanvas(innerWidth, innerHeight);
+});
