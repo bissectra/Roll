@@ -9,6 +9,23 @@ let moveHistory = [];
 let lastCompletionCheck = false;
 let isCompleted = false;
 let wasUndo = false;
+let selectedCubeIndex = 0;
+let startX = 0, startY = 0;
+let lastX = 0, lastY = 0;
+
+const DIR_DELTAS = {
+  north: [0, -1],
+  south: [0, 1],
+  east: [1, 0],
+  west: [-1, 0],
+};
+
+const OPPOSITE_DIR = {
+  north: "south",
+  south: "north",
+  east: "west",
+  west: "east",
+};
 
 const winDiv = document.getElementById("win");
 const hudName = document.getElementById("hud-name");
@@ -17,9 +34,135 @@ const hudDescription = document.getElementById("hud-description");
 const hudStars = document.getElementById("hud-stars");
 const hudMoves = document.getElementById("hud-moves");
 
+function beginInteraction(p) {
+  if (!ready || anim) return;
+  dragging = true;
+  dragDX = dragDY = 0;
+
+  const touch = (p.touches && p.touches[0]) || null;
+  const x = touch ? touch.x : p.mouseX;
+  const y = touch ? touch.y : p.mouseY;
+  startX = lastX = x;
+  startY = lastY = y;
+
+  // Temporarily override mouse coords so pick works for touch too
+  const prevMouseX = p.mouseX;
+  const prevMouseY = p.mouseY;
+  p.mouseX = x;
+  p.mouseY = y;
+  pickedCube = pickCubeAtMouse(p);
+  p.mouseX = prevMouseX;
+  p.mouseY = prevMouseY;
+
+  if (pickedCube) setSelectedCube(pickedCube);
+}
+
+function updateInteraction(p) {
+  if (dragging) {
+    const touch = (p.touches && p.touches[0]) || null;
+    const x = touch ? touch.x : p.mouseX;
+    const y = touch ? touch.y : p.mouseY;
+    dragDX = x - startX;
+    dragDY = y - startY;
+    lastX = x;
+    lastY = y;
+  }
+}
+
+function endInteraction(p) {
+  dragging = false;
+  if (!ready || anim || !pickedCube) return;
+  if (Math.hypot(dragDX, dragDY) < DRAG_THRESHOLD) return;
+
+  const dir =
+    Math.abs(dragDX) > Math.abs(dragDY)
+      ? dragDX > 0
+        ? "east"
+        : "west"
+      : dragDY > 0
+      ? "south"
+      : "north";
+
+  const cubeIndex = cubes.indexOf(pickedCube);
+  queueMove(cubeIndex, dir, p, { recordHistory: true });
+}
+
+function setSelectedCubeFromIndex(idx) {
+  if (!Array.isArray(cubes) || !cubes.length) return;
+  if (idx == null || Number.isNaN(idx)) idx = 0;
+  if (idx < 0) idx = 0;
+  if (idx >= cubes.length) idx = cubes.length - 1;
+  selectedCubeIndex = idx;
+}
+
+function setSelectedCube(cube) {
+  const idx = cubes.indexOf(cube);
+  if (idx !== -1) setSelectedCubeFromIndex(idx);
+}
+
+function queueMove(cubeIndex, dir, p, { recordHistory = true } = {}) {
+  if (!ready || anim) return false;
+  const cube = cubes[cubeIndex];
+  if (!cube) return false;
+  const delta = DIR_DELTAS[dir];
+  if (!delta) return false;
+
+  const nx = cube.x + delta[0];
+  const ny = cube.y + delta[1];
+  if (!inside(nx, ny)) return false;
+  if (occupied(nx, ny, cube)) return false;
+
+  if (recordHistory) {
+    const oppositeDir = OPPOSITE_DIR[dir];
+    if (moveHistory.length > 0) {
+      const lastMove = moveHistory[moveHistory.length - 1];
+      if (lastMove[0] === cubeIndex && lastMove[1] === oppositeDir) {
+        moveHistory.pop();
+        wasUndo = true;
+      } else {
+        moveHistory.push([cubeIndex, dir]);
+        wasUndo = false;
+      }
+    } else {
+      moveHistory.push([cubeIndex, dir]);
+      wasUndo = false;
+    }
+  } else {
+    wasUndo = true;
+  }
+
+  saveMoveHistory();
+  lastCompletionCheck = false;
+
+  anim = {
+    cube,
+    dir,
+    t0: p.millis(),
+    x0: cube.x,
+    y0: cube.y,
+    x1: nx,
+    y1: ny,
+    oldO: { ...cube.o },
+    newCube: false,
+  };
+  return true;
+}
+
+function undoLastMove(p) {
+  if (!moveHistory.length || anim) return false;
+  const [cubeIndex, dir] = moveHistory.pop();
+  const undoDir = OPPOSITE_DIR[dir];
+  if (!undoDir) return false;
+  saveMoveHistory();
+  return queueMove(cubeIndex, undoDir, p, { recordHistory: false });
+}
+
 new p5((p) => {
   p.setup = () => {
     p.createCanvas(innerWidth, innerHeight, p.WEBGL);
+    if (p.canvas) {
+      p.canvas.style.touchAction = "none"; // prevent browser scroll on swipe
+    }
     loadLevel();
   };
 
@@ -35,6 +178,20 @@ new p5((p) => {
       p.line(-r, t, 0, r, t, 0);
     }
     goals.forEach((g) => drawGoal(p, g));
+
+    // Highlight selected cube
+    if (cubes[selectedCubeIndex]) {
+      const c = cubes[selectedCubeIndex];
+      const [hx, hy] = world(c.x, c.y);
+      p.push();
+      p.translate(hx, hy, 2);
+      p.noFill();
+      p.stroke(250, 200, 50, 180);
+      p.strokeWeight(3);
+      p.circle(0, 0, CELL * 0.55);
+      p.pop();
+    }
+
     cubes.forEach((c) => {
       if (anim && anim.cube === c && !anim.newCube) return;
       const [cx, cy] = world(c.x, c.y);
@@ -67,10 +224,10 @@ new p5((p) => {
       if (raw >= 1) anim = null;
     }
     winDiv.style.opacity = isCompleted ? "1" : "0";
-    
+
     // Update HUD
     hudMoves.textContent = moveHistory.length;
-    
+
     // Save completion only on state transition and not after an undo
     if (isCompleted && !lastCompletionCheck && !wasUndo) {
       try {
@@ -98,69 +255,31 @@ new p5((p) => {
   };
 
   p.mousePressed = () => {
-    if (!ready || anim) return;
-    dragging = true;
-    dragDX = dragDY = 0;
-    pickedCube = pickCubeAtMouse(p);
+    beginInteraction(p);
   };
 
   p.mouseDragged = () => {
-    if (dragging) {
-      dragDX += p.movedX;
-      dragDY += p.movedY;
-    }
+    updateInteraction(p);
   };
 
   p.mouseReleased = () => {
-    dragging = false;
-    if (!ready || anim || !pickedCube) return;
-    if (Math.hypot(dragDX, dragDY) < DRAG_THRESHOLD) return;
+    endInteraction(p);
+  };
 
-    const dir =
-      Math.abs(dragDX) > Math.abs(dragDY)
-        ? dragDX > 0
-          ? "east"
-          : "west"
-        : dragDY > 0
-        ? "south"
-        : "north";
+  // Touch events mapped to the same handlers for mobile
+  p.touchStarted = () => {
+    beginInteraction(p);
+    return false; // prevent default scrolling
+  };
 
-    const nx = pickedCube.x + (dir === "east") - (dir === "west");
-    const ny = pickedCube.y + (dir === "south") - (dir === "north");
-    if (!inside(nx, ny)) return;
-    if (occupied(nx, ny, pickedCube)) return;
+  p.touchMoved = () => {
+    updateInteraction(p);
+    return false;
+  };
 
-    const cubeIndex = cubes.indexOf(pickedCube);
-    const oppositeDir = { north: "south", south: "north", east: "west", west: "east" }[dir];
-    
-    if (moveHistory.length > 0) {
-      const lastMove = moveHistory[moveHistory.length - 1];
-      if (lastMove[0] === cubeIndex && lastMove[1] === oppositeDir) {
-        moveHistory.pop();
-        wasUndo = true;
-      } else {
-        moveHistory.push([cubeIndex, dir]);
-        wasUndo = false;
-      }
-    } else {
-      moveHistory.push([cubeIndex, dir]);
-      wasUndo = false;
-    }
-    saveMoveHistory();
-    lastCompletionCheck = false; // Reset so completion can be checked after this move
-    console.log("Move history:", moveHistory);
-
-    anim = {
-      cube: pickedCube,
-      dir,
-      t0: p.millis(),
-      x0: pickedCube.x,
-      y0: pickedCube.y,
-      x1: nx,
-      y1: ny,
-      oldO: { ...pickedCube.o },
-      newCube: false,
-    };
+  p.touchEnded = () => {
+    endInteraction(p);
+    return false;
   };
 
   p.keyPressed = () => {

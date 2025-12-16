@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <script>
       // Set base href dynamically so assets resolve under /Roll/ or any other repo subpath.
       (function () {
@@ -15,6 +15,7 @@
     <style>
       :root { color-scheme: dark; }
       * { box-sizing: border-box; margin: 0; padding: 0; }
+      *, *::before, *::after { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
       body {
         min-height: 100vh;
         font-family: system-ui, -apple-system, sans-serif;
@@ -24,6 +25,8 @@
         display: flex;
         flex-direction: column;
         gap: 12px;
+        overflow: hidden; /* disable scroll */
+        touch-action: none; /* disable touch gestures/zoom */
       }
       header { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
       .brand { font-weight: 700; letter-spacing: 0.4px; font-size: 16px; }

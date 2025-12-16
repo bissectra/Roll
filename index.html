@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <script>
       // Set base href dynamically so assets resolve under /Roll/ or any other repo subpath.
       (function () {
@@ -17,7 +18,7 @@
 
   <body>
     <div id="nav">
-      <a href="./levels.html" aria-label="Level selector">Levels</a>
+      <button type="button" onclick="window.location.href='./levels.html'" aria-label="Open level selector">Levels</button>
       <button type="button" onclick="if(window.resetMoves) window.resetMoves();" aria-label="Reset moves">Reset</button>
     </div>
     <div id="win">

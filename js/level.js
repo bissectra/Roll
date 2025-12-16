@@ -78,6 +78,9 @@ async function loadLevel() {
       y: c.y,
       o: { ...c.orientation },
     }));
+    if (typeof setSelectedCubeFromIndex === "function") {
+      setSelectedCubeFromIndex(0);
+    }
     goals = data.goals || [];
     moveHistory = loadMoveHistory();
     replayMoves(moveHistory);
