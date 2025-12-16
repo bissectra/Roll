@@ -31,6 +31,16 @@ function replayMoves(moves) {
 
 async function loadLevel() {
   const level = getLevelName();
+  
+  // Check if reset parameter is present
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('reset')) {
+    localStorage.removeItem(`moveHistory_${level}`);
+    // Remove reset param from URL without reload
+    const cleanUrl = window.location.pathname;
+    window.history.replaceState(null, "", cleanUrl);
+  }
+  
   if (window.location.pathname === "/") window.history.replaceState(null, "", "./tutorial");
   const baseUrl = window.location.origin + "/";
   const url = new URL(`levels/${level}.json`, baseUrl);
