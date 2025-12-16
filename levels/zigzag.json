@@ -1,0 +1,23 @@
+{
+  "name": "Zigzag",
+  "description": "Weave across the board to the far corner without getting turned around.",
+  "difficulty": "Easy",
+  "stars": { "three": 8, "two": 12, "one": 16 },
+  "cubes": [
+    {
+      "x": 0,
+      "y": 0,
+      "orientation": {
+        "top": "blue",
+        "bottom": "yellow",
+        "north": "green",
+        "south": "red",
+        "east": "white",
+        "west": "orange"
+      }
+    }
+  ],
+  "goals": [
+    { "x": 4, "y": 4, "top": "blue" }
+  ]
+}

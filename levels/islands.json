@@ -1,0 +1,36 @@
+{
+  "name": "Islands",
+  "description": "Two travelers on opposite shores must reach their distant docks.",
+  "difficulty": "Medium",
+  "stars": { "three": 12, "two": 16, "one": 20 },
+  "cubes": [
+    {
+      "x": 0,
+      "y": 2,
+      "orientation": {
+        "top": "green",
+        "bottom": "white",
+        "north": "green",
+        "south": "green",
+        "east": "green",
+        "west": "green"
+      }
+    },
+    {
+      "x": 4,
+      "y": 2,
+      "orientation": {
+        "top": "red",
+        "bottom": "white",
+        "north": "red",
+        "south": "red",
+        "east": "red",
+        "west": "red"
+      }
+    }
+  ],
+  "goals": [
+    { "x": 4, "y": 2, "top": "green" },
+    { "x": 0, "y": 2, "top": "red" }
+  ]
+}

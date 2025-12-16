@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
     <script>
       // Set base href dynamically so assets resolve under /Roll/ or any other repo subpath.
       (function () {
@@ -13,9 +16,22 @@
     </script>
     <title>Cube Roll – Levels</title>
     <style>
-      :root { color-scheme: dark; }
-      * { box-sizing: border-box; margin: 0; padding: 0; }
-      *, *::before, *::after { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+      :root {
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      *,
+      *::before,
+      *::after {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
       body {
         min-height: 100vh;
         font-family: system-ui, -apple-system, sans-serif;
@@ -28,10 +44,24 @@
         overflow: auto; /* allow scroll */
         touch-action: auto; /* allow touch scrolling */
       }
-      header { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-      .brand { font-weight: 700; letter-spacing: 0.4px; font-size: 16px; }
-      .actions { display: inline-flex; gap: 8px; flex-wrap: wrap; }
-      a.button, button.button {
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+      }
+      .brand {
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        font-size: 16px;
+      }
+      .actions {
+        display: inline-flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      a.button,
+      button.button {
         padding: 8px 12px;
         border-radius: 10px;
         border: 1px solid #1f2733;
@@ -41,9 +71,21 @@
         cursor: pointer;
         font-weight: 600;
       }
-      a.button.secondary, button.button.secondary { background: transparent; color: #9ca3af; }
-      main { display: flex; flex-direction: column; gap: 12px; }
-      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+      a.button.secondary,
+      button.button.secondary {
+        background: transparent;
+        color: #9ca3af;
+      }
+      main {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 10px;
+      }
       .card {
         border: 1px solid #1f2733;
         background: #12151c;
@@ -55,16 +97,52 @@
         cursor: pointer;
         transition: background 0.15s ease, border-color 0.15s ease;
       }
-      .card:hover { background: #151922; border-color: #263042; }
-      .card:active { background: #0e1118; }
-      .card h2 { font-size: 16px; }
-      .meta { color: #9ca3af; font-size: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
-      .desc { color: #d1d5db; font-size: 14px; line-height: 1.4; }
-      .footer { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-      .small { color: #6b7280; font-size: 12px; }
-      .stars { display: inline-flex; gap: 4px; align-items: center; }
-      .star { font-size: 20px; line-height: 1; color: #facc15; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.35)); }
-      .star.dim { color: #3b3f4a; }
+      .card:hover {
+        background: #151922;
+        border-color: #263042;
+      }
+      .card:active {
+        background: #0e1118;
+      }
+      .card h2 {
+        font-size: 16px;
+      }
+      .meta {
+        color: #9ca3af;
+        font-size: 12px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .desc {
+        color: #d1d5db;
+        font-size: 14px;
+        line-height: 1.4;
+      }
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+      }
+      .small {
+        color: #6b7280;
+        font-size: 12px;
+      }
+      .stars {
+        display: inline-flex;
+        gap: 4px;
+        align-items: center;
+      }
+      .star {
+        font-size: 20px;
+        line-height: 1;
+        color: #facc15;
+        filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+      }
+      .star.dim {
+        color: #3b3f4a;
+      }
     </style>
   </head>
   <body>
@@ -76,7 +154,7 @@
     </header>
 
     <main>
-      <div class="actions" style="justify-content: flex-start;">
+      <div class="actions" style="justify-content: flex-start">
         <button class="button" id="random-btn">Surprise me</button>
         <button class="button secondary" id="reset-btn">Factory Reset</button>
       </div>
@@ -85,7 +163,14 @@
     </main>
 
     <script>
-      const LEVEL_IDS = ["tutorial", "traffic", "flower"];
+      const LEVEL_IDS = [
+        "tutorial",
+        "zigzag",
+        "islands",
+        "crossroads",
+        "traffic",
+        "flower",
+      ];
       const grid = document.getElementById("levels-grid");
 
       function bestCompletionFor(id) {
@@ -127,21 +212,26 @@
 
       function createThresholdsDisplay(stars, filled) {
         if (!stars) return null;
-        const hasAny = stars.one != null || stars.two != null || stars.three != null;
+        const hasAny =
+          stars.one != null || stars.two != null || stars.three != null;
         if (!hasAny) return null;
-        
+
         const t1 = stars.one ?? "–";
         const t2 = stars.two ?? "–";
         const t3 = stars.three ?? "–";
-        
+
         const container = document.createElement("div");
-        container.style.cssText = "display: flex; gap: 6px; font-size: 11px; color: #9ca3af;";
-        
+        container.style.cssText =
+          "display: flex; gap: 6px; font-size: 11px; color: #9ca3af;";
+
         [t1, t2, t3].forEach((val, idx) => {
           const item = document.createElement("div");
-          item.style.cssText = "display: flex; flex-direction: column; align-items: center; gap: 2px;";
+          item.style.cssText =
+            "display: flex; flex-direction: column; align-items: center; gap: 2px;";
           const star = document.createElement("div");
-          star.style.cssText = `font-size: 32px; line-height: 1; color: ${idx < filled ? "#facc15" : "#3b3f4a"}; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.35));`;
+          star.style.cssText = `font-size: 32px; line-height: 1; color: ${
+            idx < filled ? "#facc15" : "#3b3f4a"
+          }; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.35));`;
           star.textContent = "★";
           const threshold = document.createElement("div");
           threshold.textContent = val;
@@ -149,7 +239,7 @@
           item.appendChild(threshold);
           container.appendChild(item);
         });
-        
+
         return container;
       }
 
@@ -158,7 +248,9 @@
         card.className = "card";
         card.tabIndex = 0;
         card.setAttribute("role", "link");
-        const go = () => { window.location.href = `./level/${level.id}?reset=1`; };
+        const go = () => {
+          window.location.href = `./level/${level.id}?reset=1`;
+        };
         card.addEventListener("click", go);
         card.addEventListener("keydown", (e) => {
           if (e.key === "Enter" || e.key === " ") {
@@ -174,7 +266,10 @@
         meta.className = "meta";
         const moves = moveCountFor(level.id);
         const best = bestCompletionFor(level.id);
-        const bestDate = best && best.completedAt ? new Date(best.completedAt).toLocaleDateString() : null;
+        const bestDate =
+          best && best.completedAt
+            ? new Date(best.completedAt).toLocaleDateString()
+            : null;
         if (best && moves != null) {
           meta.textContent = `Best: ${moves} moves • ${bestDate}`;
         } else {
@@ -184,7 +279,6 @@
         const thresholds = level.stars || {};
         const filled = starsFor(level, moves);
         const thresholdDisplay = createThresholdsDisplay(thresholds, filled);
-
 
         const desc = document.createElement("p");
         desc.className = "desc";
@@ -238,8 +332,12 @@
       (async () => {
         const levels = await loadLevels();
         renderLevels(levels);
-        document.getElementById("random-btn").addEventListener("click", () => goToRandomLevel(levels));
-        document.getElementById("reset-btn").addEventListener("click", factoryReset);
+        document
+          .getElementById("random-btn")
+          .addEventListener("click", () => goToRandomLevel(levels));
+        document
+          .getElementById("reset-btn")
+          .addEventListener("click", factoryReset);
       })();
     </script>
   </body>

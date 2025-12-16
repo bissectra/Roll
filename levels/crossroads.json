@@ -1,0 +1,78 @@
+{
+  "name": "Crossroads",
+  "description": "Guide four cubes to form a perfect cross at the center.",
+  "difficulty": "Medium",
+  "stars": { "three": 20, "two": 26, "one": 32 },
+  "cubes": [
+    {
+      "x": 2,
+      "y": 0,
+      "orientation": {
+        "top": "red",
+        "bottom": "white",
+        "north": "red",
+        "south": "red",
+        "east": "red",
+        "west": "red"
+      }
+    },
+    {
+      "x": 4,
+      "y": 2,
+      "orientation": {
+        "top": "blue",
+        "bottom": "white",
+        "north": "blue",
+        "south": "blue",
+        "east": "blue",
+        "west": "blue"
+      }
+    },
+    {
+      "x": 2,
+      "y": 4,
+      "orientation": {
+        "top": "green",
+        "bottom": "white",
+        "north": "green",
+        "south": "green",
+        "east": "green",
+        "west": "green"
+      }
+    },
+    {
+      "x": 0,
+      "y": 2,
+      "orientation": {
+        "top": "yellow",
+        "bottom": "white",
+        "north": "yellow",
+        "south": "yellow",
+        "east": "yellow",
+        "west": "yellow"
+      }
+    }
+  ],
+  "goals": [
+    {
+      "x": 2,
+      "y": 4,
+      "top": "red"
+    },
+    {
+      "x": 2,
+      "y": 0,
+      "top": "green"
+    },
+    {
+      "x": 0,
+      "y": 2,
+      "top": "blue"
+    },
+    {
+      "x": 4,
+      "y": 2,
+      "top": "yellow"
+    }
+  ]
+}
