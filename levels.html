@@ -109,6 +109,34 @@
         return 0;
       }
 
+      function createThresholdsDisplay(stars, filled) {
+        if (!stars) return null;
+        const hasAny = stars.one != null || stars.two != null || stars.three != null;
+        if (!hasAny) return null;
+        
+        const t1 = stars.one ?? "–";
+        const t2 = stars.two ?? "–";
+        const t3 = stars.three ?? "–";
+        
+        const container = document.createElement("div");
+        container.style.cssText = "display: flex; gap: 6px; font-size: 11px; color: #9ca3af;";
+        
+        [t1, t2, t3].forEach((val, idx) => {
+          const item = document.createElement("div");
+          item.style.cssText = "display: flex; flex-direction: column; align-items: center; gap: 2px;";
+          const star = document.createElement("div");
+          star.style.cssText = `font-size: 32px; line-height: 1; color: ${idx < filled ? "#facc15" : "#3b3f4a"}; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.35));`;
+          star.textContent = "★";
+          const threshold = document.createElement("div");
+          threshold.textContent = val;
+          item.appendChild(star);
+          item.appendChild(threshold);
+          container.appendChild(item);
+        });
+        
+        return container;
+      }
+
       function createCard(level) {
         const card = document.createElement("article");
         card.className = "card";
@@ -127,15 +155,10 @@
           meta.textContent = `${level.difficulty || "Level"}`;
         }
 
-        const starLine = document.createElement("div");
-        starLine.className = "stars";
+        const thresholds = level.stars || {};
         const filled = starsFor(level, moves);
-        for (let i = 0; i < 3; i++) {
-          const s = document.createElement("span");
-          s.className = "star" + (i < filled ? "" : " dim");
-          s.textContent = "★";
-          starLine.appendChild(s);
-        }
+        const thresholdDisplay = createThresholdsDisplay(thresholds, filled);
+
 
         const desc = document.createElement("p");
         desc.className = "desc";
@@ -158,7 +181,7 @@
 
         card.appendChild(title);
         card.appendChild(meta);
-        card.appendChild(starLine);
+        if (thresholdDisplay) card.appendChild(thresholdDisplay);
         card.appendChild(desc);
         card.appendChild(footer);
 

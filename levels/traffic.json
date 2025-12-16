@@ -2,7 +2,7 @@
   "name": "Traffic Jam",
   "description": "Guide three cubes into a straight lane without colliding on the way.",
   "difficulty": "Medium",
-  "stars": { "three": 6, "two": 10, "one": 14 },
+  "stars": { "three": 14, "two": 16, "one": 18 },
   "cubes": [
     {
       "x": 4,

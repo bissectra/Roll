@@ -2,7 +2,7 @@
   "name": "Tutorial",
   "description": "Learn the basic cube rolling mechanic in a single-step puzzle.",
   "difficulty": "Easy",
-  "stars": { "three": 1, "two": 3, "one": 5 },
+  "stars": { "three": 2, "two": 3, "one": 4 },
   "cubes": [
     {
       "x": 2,
