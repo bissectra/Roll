@@ -8,6 +8,7 @@ let pickedCube = null;
 let moveHistory = [];
 let lastCompletionCheck = false;
 let isCompleted = false;
+let wasUndo = false;
 
 const winDiv = document.getElementById("win");
 const hudName = document.getElementById("hud-name");
@@ -70,8 +71,8 @@ new p5((p) => {
     // Update HUD
     hudMoves.textContent = moveHistory.length;
     
-    // Save completion only on state transition (not every frame)
-    if (isCompleted && !lastCompletionCheck) {
+    // Save completion only on state transition and not after an undo
+    if (isCompleted && !lastCompletionCheck && !wasUndo) {
       try {
         const levelName = getLevelName ? getLevelName() : null;
         if (levelName) {
@@ -136,11 +137,14 @@ new p5((p) => {
       const lastMove = moveHistory[moveHistory.length - 1];
       if (lastMove[0] === cubeIndex && lastMove[1] === oppositeDir) {
         moveHistory.pop();
+        wasUndo = true;
       } else {
         moveHistory.push([cubeIndex, dir]);
+        wasUndo = false;
       }
     } else {
       moveHistory.push([cubeIndex, dir]);
+      wasUndo = false;
     }
     saveMoveHistory();
     lastCompletionCheck = false; // Reset so completion can be checked after this move
