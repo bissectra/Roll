@@ -5,24 +5,13 @@
       "y": 2,
       "orientation": {
         "top": "yellow",
-        "bottom": "yellow",
-        "north": "yellow",
-        "south": "yellow",
-        "east": "yellow",
+        "bottom": "white",
+        "north": "green",
+        "south": "blue",
+        "east": "red",
         "west": "orange"
       }
-    },
-    {
-      "x": 4,
-      "y": 3,
-      "orientation": {
-        "top": "blue",
-        "bottom": "white",
-        "north": "red",
-        "south": "orange",
-        "east": "green",
-        "west": "yellow"
-      }
     }
-  ]
+  ],
+  "goals": [{ "x": 3, "y": 2, "top": "yellow" }]
 }
