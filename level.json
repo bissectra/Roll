@@ -5,10 +5,10 @@
       "y": 2,
       "orientation": {
         "top": "yellow",
-        "bottom": "white",
-        "north": "green",
-        "south": "blue",
-        "east": "red",
+        "bottom": "yellow",
+        "north": "yellow",
+        "south": "yellow",
+        "east": "yellow",
         "west": "orange"
       }
     },
