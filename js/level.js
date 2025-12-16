@@ -90,10 +90,7 @@ async function loadLevel() {
     // Update simplified HUD elements
     const levelInfoBtn = document.getElementById("level-info");
     const hudDescBottom = document.getElementById("hud-desc-bottom");
-    const t1 = data.stars && data.stars.one != null ? data.stars.one : "–";
-    const t2 = data.stars && data.stars.two != null ? data.stars.two : "–";
-    const t3 = data.stars && data.stars.three != null ? data.stars.three : "–";
-    if (levelInfoBtn) levelInfoBtn.textContent = `${data.name || level} (${t1}, ${t2}, ${t3})`;
+    if (levelInfoBtn) levelInfoBtn.textContent = `${data.name || level}`;
     if (hudDescBottom) hudDescBottom.textContent = data.description || "–";
     
     console.log("Loaded", url.href);

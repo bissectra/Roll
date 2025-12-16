@@ -50,6 +50,20 @@ body {
   transition: background 0.15s ease, transform 0.15s ease;
 }
 
+/* Visual state for disabled level name button */
+#nav button:disabled {
+  opacity: 0.6;
+  background: rgba(17, 17, 17, 0.6);
+  color: #c7cbd3;
+  cursor: default;
+  transform: none;
+}
+
+#nav button:disabled:hover {
+  background: rgba(17, 17, 17, 0.6);
+  transform: none;
+}
+
 #nav button:hover {
   background: rgba(40, 44, 52, 0.9);
   transform: translateY(-1px);
@@ -72,7 +86,7 @@ body {
 /* Bottom one-line level description next to move counter */
 #hud-desc-bottom {
   position: fixed;
-  bottom: 28px;
+  bottom: 20px; /* align vertically with move counter base */
   left: 120px; /* 20px left + 88px circle + 12px gap */
   right: 20px;
   z-index: 10;
@@ -81,6 +95,9 @@ body {
   color: #d1d5db;
   white-space: normal; /* allow wrapping */
   overflow: visible;   /* show full text */
+  min-height: 88px;    /* match counter height */
+  display: flex;
+  align-items: center; /* vertically center text to counter */
 }
 
 #hud-moves {
@@ -122,9 +139,10 @@ body {
   }
 
   #hud-desc-bottom {
-    bottom: 24px;
-    left: 96px; /* smaller circle position on mobile */
+    bottom: 16px;      /* align with counter */
+    left: 96px;        /* 14px left + 74px circle + 8px gap */
     right: 12px;
     font-size: 16px;
+    min-height: 74px;  /* match counter height */
   }
 }
