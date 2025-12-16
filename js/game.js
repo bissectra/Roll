@@ -13,6 +13,62 @@ let selectedCubeIndex = 0;
 let startX = 0, startY = 0;
 let lastX = 0, lastY = 0;
 
+// --- Simple WebAudio Sound Manager ---
+const Sound = (() => {
+  let ctx = null;
+  let master = null;
+  function ensure() {
+    if (!ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      ctx = new AC();
+      master = ctx.createGain();
+      master.gain.value = 0.15; // overall volume
+      master.connect(ctx.destination);
+    }
+    if (ctx && ctx.state === 'suspended') {
+      // Try to resume on user gesture
+      ctx.resume().catch(() => {});
+    }
+    return ctx;
+  }
+  function beep(freq = 440, duration = 0.12, volume = 0.18, type = 'triangle', offset = 0) {
+    const c = ensure();
+    if (!c) return;
+    const o = c.createOscillator();
+    const g = c.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    const t = c.currentTime + offset;
+    const attack = 0.01;
+    const release = Math.max(0.05, duration * 0.6);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(volume, t + attack);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + duration + release);
+    o.connect(g);
+    g.connect(master);
+    o.start(t);
+    o.stop(t + duration + release + 0.02);
+  }
+  function move() {
+    // quick, pleasant blip
+    beep(540, 0.08, 0.16, 'triangle');
+  }
+  function block() {
+    // short low thud-like blip
+    beep(170, 0.10, 0.22, 'sine');
+  }
+  function complete() {
+    // simple ascending arpeggio
+    const base = 520;
+    [0, 4, 7, 12].forEach((semi, i) => {
+      const freq = base * Math.pow(2, semi / 12);
+      beep(freq, 0.14, 0.18, 'sine', i * 0.08);
+    });
+  }
+  return { move, block, complete };
+})();
+
 const DIR_DELTAS = {
   north: [0, -1],
   south: [0, 1],
@@ -82,7 +138,11 @@ function endInteraction(p) {
       : "north";
 
   const cubeIndex = cubes.indexOf(pickedCube);
-  queueMove(cubeIndex, dir, p, { recordHistory: true });
+  const ok = queueMove(cubeIndex, dir, p, { recordHistory: true });
+  if (!ok) {
+    // play block sound on invalid move
+    Sound.block();
+  }
 }
 
 function setSelectedCubeFromIndex(idx) {
@@ -143,6 +203,8 @@ function queueMove(cubeIndex, dir, p, { recordHistory = true } = {}) {
     oldO: { ...cube.o },
     newCube: false,
   };
+  // play move sound once we start animation
+  Sound.move();
   return true;
 }
 
@@ -228,6 +290,8 @@ new p5((p) => {
 
     // Save completion only on state transition and not after an undo
     if (isCompleted && !lastCompletionCheck && !wasUndo) {
+      // celebratory sound
+      Sound.complete();
       try {
         const levelName = getLevelName ? getLevelName() : null;
         if (levelName) {
