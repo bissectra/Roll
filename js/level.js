@@ -6,6 +6,29 @@ function getLevelName() {
   return lastPart;
 }
 
+function saveMoveHistory() {
+  const levelName = getLevelName();
+  localStorage.setItem(`moveHistory_${levelName}`, JSON.stringify(moveHistory));
+}
+
+function loadMoveHistory() {
+  const levelName = getLevelName();
+  const saved = localStorage.getItem(`moveHistory_${levelName}`);
+  return saved ? JSON.parse(saved) : [];
+}
+
+function replayMoves(moves) {
+  for (const [cubeIndex, direction] of moves) {
+    if (cubeIndex >= cubes.length) continue;
+    const cube = cubes[cubeIndex];
+    const dx = (direction === "east") - (direction === "west");
+    const dy = (direction === "south") - (direction === "north");
+    cube.x += dx;
+    cube.y += dy;
+    cube.o = ROLL[direction](cube.o);
+  }
+}
+
 async function loadLevel() {
   const level = getLevelName();
   if (window.location.pathname === "/") window.history.replaceState(null, "", "./tutorial");
@@ -22,7 +45,8 @@ async function loadLevel() {
     }));
     goals = data.goals || [];
     nextLevel = data.nextLevel || null;
-    moveHistory = [];
+    moveHistory = loadMoveHistory();
+    replayMoves(moveHistory);
     ready = true;
     document.title = "Cube Roll – " + level;
     console.log("Loaded", url.href);

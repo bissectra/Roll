@@ -106,6 +106,7 @@ new p5((p) => {
     } else {
       moveHistory.push([cubeIndex, dir]);
     }
+    saveMoveHistory();
     console.log("Move history:", moveHistory);
 
     anim = {
