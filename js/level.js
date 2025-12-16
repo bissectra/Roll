@@ -4,6 +4,8 @@ function getLevelName() {
   // When served from a subpath like /Roll/, the pathname can be just the repo folder.
   // If there's only one segment and the URL ends with a slash, treat it as root/tutorial.
   if (parts.length === 1 && window.location.pathname.endsWith("/")) return "tutorial";
+  // Also handle the case without trailing slash: /Roll should map to tutorial, not "Roll".
+  if (parts.length === 1 && parts[0].toLowerCase() === "roll") return "tutorial";
   const lastPart = parts[parts.length - 1];
   if (!lastPart || lastPart === "index.html" || lastPart.endsWith(".html")) return "tutorial";
   return lastPart;
