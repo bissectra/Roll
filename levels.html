@@ -63,6 +63,7 @@
     <main>
       <div class="actions" style="justify-content: flex-start;">
         <button class="button" id="random-btn">Surprise me</button>
+        <button class="button secondary" id="reset-btn">Factory Reset</button>
       </div>
 
       <div class="grid" id="levels-grid" aria-live="polite"></div>
@@ -214,10 +215,22 @@
         window.location.href = `./${pick.id}`;
       }
 
+      function factoryReset() {
+        if (!confirm("Clear all progress? This cannot be undone.")) return;
+        const keys = Object.keys(localStorage);
+        keys.forEach((key) => {
+          if (key.startsWith("moveHistory_") || key.startsWith("completed_")) {
+            localStorage.removeItem(key);
+          }
+        });
+        location.reload();
+      }
+
       (async () => {
         const levels = await loadLevels();
         renderLevels(levels);
         document.getElementById("random-btn").addEventListener("click", () => goToRandomLevel(levels));
+        document.getElementById("reset-btn").addEventListener("click", factoryReset);
       })();
     </script>
   </body>
