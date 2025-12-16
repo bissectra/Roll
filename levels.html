@@ -55,9 +55,6 @@
         <span aria-hidden="true"></span>
         Cube Roll
       </div>
-      <div class="actions">
-        <a class="button secondary" href="./editor.html">Level editor</a>
-      </div>
     </header>
 
     <main>
@@ -72,6 +69,30 @@
       const LEVEL_IDS = ["tutorial", "traffic"];
       const grid = document.getElementById("levels-grid");
 
+      function moveCountFor(id) {
+        try {
+          const raw = localStorage.getItem(`moveHistory_${id}`);
+          if (!raw) return null;
+          const arr = JSON.parse(raw);
+          return Array.isArray(arr) ? arr.length : null;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function starsFor(level, moves) {
+        const stars = level.stars || {};
+        const t3 = stars.three;
+        const t2 = stars.two;
+        const t1 = stars.one;
+        if (moves == null) return "☆☆☆";
+        let filled = 0;
+        if (t3 != null && moves <= t3) filled = 3;
+        else if (t2 != null && moves <= t2) filled = 2;
+        else if (t1 != null && moves <= t1) filled = 1;
+        return "★".repeat(filled) + "☆".repeat(3 - filled);
+      }
+
       function createCard(level) {
         const card = document.createElement("article");
         card.className = "card";
@@ -81,7 +102,12 @@
 
         const meta = document.createElement("div");
         meta.className = "meta";
-        meta.textContent = `${level.difficulty || "Level"} • Par: ${level.par ?? "–"}`;
+        const moves = moveCountFor(level.id);
+        meta.textContent = `${level.difficulty || "Level"} • Moves: ${moves ?? "–"}`;
+
+        const starLine = document.createElement("div");
+        starLine.className = "small";
+        starLine.textContent = starsFor(level, moves);
 
         const desc = document.createElement("p");
         desc.className = "desc";
@@ -104,6 +130,7 @@
 
         card.appendChild(title);
         card.appendChild(meta);
+        card.appendChild(starLine);
         card.appendChild(desc);
         card.appendChild(footer);
 
@@ -131,7 +158,7 @@
       }
 
       function goToRandomLevel(levels) {
-        if (!Array.isArray(levetls) || levels.length === 0) return;
+        if (!Array.isArray(levels) || levels.length === 0) return;
         const pick = levels[Math.floor(Math.random() * levels.length)];
         window.location.href = `./${pick.id}`;
       }
