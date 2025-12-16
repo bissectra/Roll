@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <script>
-      // Set base href dynamically so assets resolve under /Roll/ or any other repo subpath.
+      // Dynamic base for GitHub Pages subpaths (e.g., /Roll/level/tutorial)
       (function () {
         const segs = window.location.pathname.split("/").filter(Boolean);
         const base = segs.length ? `/${segs[0]}/` : "/";
