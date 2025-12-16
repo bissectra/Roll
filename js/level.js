@@ -22,6 +22,7 @@ async function loadLevel() {
     }));
     goals = data.goals || [];
     nextLevel = data.nextLevel || null;
+    moveHistory = [];
     ready = true;
     document.title = "Cube Roll – " + level;
     console.log("Loaded", url.href);

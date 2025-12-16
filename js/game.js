@@ -6,6 +6,7 @@ let nextLevel = null;
 let dragging = false;
 let dragDX = 0, dragDY = 0;
 let pickedCube = null;
+let moveHistory = [];
 
 const winDiv = document.getElementById("win");
 
@@ -91,6 +92,10 @@ new p5((p) => {
     const ny = pickedCube.y + (dir === "south") - (dir === "north");
     if (!inside(nx, ny)) return;
     if (occupied(nx, ny, pickedCube)) return;
+
+    const cubeIndex = cubes.indexOf(pickedCube);
+    moveHistory.push([cubeIndex, dir]);
+    console.log("Move history:", moveHistory);
 
     anim = {
       cube: pickedCube,
