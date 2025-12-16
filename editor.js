@@ -78,26 +78,13 @@ function updateJSON() {
 
 function updateValidationStatus() {
   const validationEl = document.getElementById("validation-status");
-  const isValid = cubes.length > 0 && cubes.length === goals.length;
-  
-  if (isValid) {
-    validationEl.textContent = `✓ Valid: ${cubes.length} cube${cubes.length !== 1 ? 's' : ''} & goal${goals.length !== 1 ? 's' : ''}`;
-    validationEl.style.color = "#60dc8c";
-  } else {
-    const errors = [];
-    if (cubes.length === 0) errors.push("no cubes");
-    if (goals.length === 0) errors.push("no goals");
-    if (cubes.length !== goals.length) errors.push(`${cubes.length} cube${cubes.length !== 1 ? 's' : ''} ≠ ${goals.length} goal${goals.length !== 1 ? 's' : ''}`);
-    validationEl.textContent = `✗ Invalid: ${errors.join(", ")}`;
-    validationEl.style.color = "#f85149";
-  }
+  const cubesLabel = `${cubes.length} cube${cubes.length !== 1 ? 's' : ''}`;
+  const goalsLabel = `${goals.length} goal${goals.length !== 1 ? 's' : ''}`;
+  validationEl.textContent = `Cubes: ${cubesLabel} • Goals: ${goalsLabel}`;
+  validationEl.style.color = "#cbd5e1"; // neutral color
 }
 
 function exportJSON() {
-  if (cubes.length === 0 || goals.length === 0 || cubes.length !== goals.length) {
-    alert("Invalid level: cubes and goals must both have the same positive length.");
-    return;
-  }
   const text = document.getElementById("json-output").textContent;
   navigator.clipboard.writeText(text).then(() => {
     alert("JSON copied to clipboard!");
@@ -118,10 +105,6 @@ function importJSON() {
 }
 
 function downloadJSON() {
-  if (cubes.length === 0 || goals.length === 0 || cubes.length !== goals.length) {
-    alert("Invalid level: cubes and goals must both have the same positive length.");
-    return;
-  }
   const text = document.getElementById("json-output").textContent;
   const blob = new Blob([text], { type: "application/json" });
   const url = URL.createObjectURL(blob);

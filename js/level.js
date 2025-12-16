@@ -86,6 +86,14 @@ async function loadLevel() {
     replayMoves(moveHistory);
     ready = true;
     document.title = "Cube Roll – " + level;
+    // Evaluate completion immediately on load (supports levels with zero goals, etc.)
+    try {
+      if (typeof goalsSatisfied === 'function') {
+        // isCompleted/lastCompletionCheck are globals from game.js
+        isCompleted = goalsSatisfied();
+        lastCompletionCheck = false; // allow draw loop to register transition once
+      }
+    } catch (_) {}
     
     // Update simplified HUD elements
     const levelInfoBtn = document.getElementById("level-info");
