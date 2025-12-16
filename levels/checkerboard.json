@@ -1,0 +1,66 @@
+{
+  "name": "Checkerboard",
+  "description": "A 5x5 checkerboard with one missing square for sliding room—fill the pattern with blues and whites.",
+  "difficulty": "Hard",
+  "stars": { "three": 70, "two": 90, "one": 120 },
+  "cubes": [
+    { "x": 0, "y": 0, "orientation": { "top": "blue", "bottom": "blue", "north": "blue", "south": "blue", "east": "blue", "west": "blue" } },
+    { "x": 1, "y": 0, "orientation": { "top": "white", "bottom": "white", "north": "white", "south": "white", "east": "white", "west": "white" } },
+    { "x": 2, "y": 0, "orientation": { "top": "blue", "bottom": "blue", "north": "blue", "south": "blue", "east": "blue", "west": "blue" } },
+    { "x": 3, "y": 0, "orientation": { "top": "white", "bottom": "white", "north": "white", "south": "white", "east": "white", "west": "white" } },
+    { "x": 4, "y": 0, "orientation": { "top": "blue", "bottom": "blue", "north": "blue", "south": "blue", "east": "blue", "west": "blue" } },
+
+    { "x": 0, "y": 1, "orientation": { "top": "white", "bottom": "white", "north": "white", "south": "white", "east": "white", "west": "white" } },
+    { "x": 1, "y": 1, "orientation": { "top": "blue", "bottom": "blue", "north": "blue", "south": "blue", "east": "blue", "west": "blue" } },
+    { "x": 2, "y": 1, "orientation": { "top": "white", "bottom": "white", "north": "white", "south": "white", "east": "white", "west": "white" } },
+    { "x": 3, "y": 1, "orientation": { "top": "blue", "bottom": "blue", "north": "blue", "south": "blue", "east": "blue", "west": "blue" } },
+    { "x": 4, "y": 1, "orientation": { "top": "white", "bottom": "white", "north": "white", "south": "white", "east": "white", "west": "white" } },
+
+    { "x": 0, "y": 2, "orientation": { "top": "blue", "bottom": "blue", "north": "blue", "south": "blue", "east": "blue", "west": "blue" } },
+    { "x": 1, "y": 2, "orientation": { "top": "white", "bottom": "white", "north": "white", "south": "white", "east": "white", "west": "white" } },
+    { "x": 3, "y": 2, "orientation": { "top": "white", "bottom": "white", "north": "white", "south": "white", "east": "white", "west": "white" } },
+    { "x": 4, "y": 2, "orientation": { "top": "blue", "bottom": "blue", "north": "blue", "south": "blue", "east": "blue", "west": "blue" } },
+
+    { "x": 0, "y": 3, "orientation": { "top": "white", "bottom": "white", "north": "white", "south": "white", "east": "white", "west": "white" } },
+    { "x": 1, "y": 3, "orientation": { "top": "blue", "bottom": "blue", "north": "blue", "south": "blue", "east": "blue", "west": "blue" } },
+    { "x": 2, "y": 3, "orientation": { "top": "white", "bottom": "white", "north": "white", "south": "white", "east": "white", "west": "white" } },
+    { "x": 3, "y": 3, "orientation": { "top": "blue", "bottom": "blue", "north": "blue", "south": "blue", "east": "blue", "west": "blue" } },
+    { "x": 4, "y": 3, "orientation": { "top": "white", "bottom": "white", "north": "white", "south": "white", "east": "white", "west": "white" } },
+
+    { "x": 0, "y": 4, "orientation": { "top": "blue", "bottom": "blue", "north": "blue", "south": "blue", "east": "blue", "west": "blue" } },
+    { "x": 1, "y": 4, "orientation": { "top": "white", "bottom": "white", "north": "white", "south": "white", "east": "white", "west": "white" } },
+    { "x": 2, "y": 4, "orientation": { "top": "blue", "bottom": "blue", "north": "blue", "south": "blue", "east": "blue", "west": "blue" } },
+    { "x": 3, "y": 4, "orientation": { "top": "white", "bottom": "white", "north": "white", "south": "white", "east": "white", "west": "white" } },
+    { "x": 4, "y": 4, "orientation": { "top": "blue", "bottom": "blue", "north": "blue", "south": "blue", "east": "blue", "west": "blue" } }
+  ],
+  "goals": [
+    { "x": 0, "y": 0, "top": "white" },
+    { "x": 1, "y": 0, "top": "blue" },
+    { "x": 2, "y": 0, "top": "white" },
+    { "x": 3, "y": 0, "top": "blue" },
+    { "x": 4, "y": 0, "top": "white" },
+
+    { "x": 0, "y": 1, "top": "blue" },
+    { "x": 1, "y": 1, "top": "white" },
+    { "x": 2, "y": 1, "top": "blue" },
+    { "x": 3, "y": 1, "top": "white" },
+    { "x": 4, "y": 1, "top": "blue" },
+
+    { "x": 0, "y": 2, "top": "white" },
+    { "x": 1, "y": 2, "top": "blue" },
+    { "x": 3, "y": 2, "top": "blue" },
+    { "x": 4, "y": 2, "top": "white" },
+
+    { "x": 0, "y": 3, "top": "blue" },
+    { "x": 1, "y": 3, "top": "white" },
+    { "x": 2, "y": 3, "top": "blue" },
+    { "x": 3, "y": 3, "top": "white" },
+    { "x": 4, "y": 3, "top": "blue" },
+
+    { "x": 0, "y": 4, "top": "white" },
+    { "x": 1, "y": 4, "top": "blue" },
+    { "x": 2, "y": 4, "top": "white" },
+    { "x": 3, "y": 4, "top": "blue" },
+    { "x": 4, "y": 4, "top": "white" }
+  ]
+}

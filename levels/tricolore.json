@@ -1,0 +1,32 @@
+{
+  "name": "Tricolore",
+  "description": "Rearrange the cubes into a 3x3 tricolor flag (green, white, red) using the rest of the board as sliding space.",
+  "difficulty": "Medium",
+  "stars": { "three": 18, "two": 24, "one": 32 },
+  "cubes": [
+    { "x": 4, "y": 0, "orientation": { "top": "red", "bottom": "red", "north": "red", "south": "red", "east": "red", "west": "red" } },
+    { "x": 4, "y": 1, "orientation": { "top": "red", "bottom": "red", "north": "red", "south": "red", "east": "red", "west": "red" } },
+    { "x": 3, "y": 0, "orientation": { "top": "red", "bottom": "red", "north": "red", "south": "red", "east": "red", "west": "red" } },
+
+    { "x": 4, "y": 2, "orientation": { "top": "white", "bottom": "white", "north": "white", "south": "white", "east": "white", "west": "white" } },
+    { "x": 3, "y": 1, "orientation": { "top": "white", "bottom": "white", "north": "white", "south": "white", "east": "white", "west": "white" } },
+    { "x": 3, "y": 2, "orientation": { "top": "white", "bottom": "white", "north": "white", "south": "white", "east": "white", "west": "white" } },
+
+    { "x": 4, "y": 3, "orientation": { "top": "green", "bottom": "green", "north": "green", "south": "green", "east": "green", "west": "green" } },
+    { "x": 3, "y": 3, "orientation": { "top": "green", "bottom": "green", "north": "green", "south": "green", "east": "green", "west": "green" } },
+    { "x": 4, "y": 4, "orientation": { "top": "green", "bottom": "green", "north": "green", "south": "green", "east": "green", "west": "green" } }
+  ],
+  "goals": [
+    { "x": 0, "y": 0, "top": "green" },
+    { "x": 1, "y": 0, "top": "white" },
+    { "x": 2, "y": 0, "top": "red" },
+
+    { "x": 0, "y": 1, "top": "green" },
+    { "x": 1, "y": 1, "top": "white" },
+    { "x": 2, "y": 1, "top": "red" },
+
+    { "x": 0, "y": 2, "top": "green" },
+    { "x": 1, "y": 2, "top": "white" },
+    { "x": 2, "y": 2, "top": "red" }
+  ]
+}
