@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <title>CubeRoll – Minimal</title>
@@ -11,23 +11,29 @@ html,body{margin:0;background:#111;color:#eee;font-family:sans-serif}
 </head>
 <body>
 <div id="hint">Drag to roll</div>
-<script>
-const GRID = 5;
-const S = 60;
-const CUBE = S * 0.9;
 
+<script>
+/* ===== parameters ===== */
+const GRID = 5;
+const CELL = 60;
+const CUBE = CELL * 0.9;
+const DRAG_THRESHOLD = 25;
+
+/* ===== colors ===== */
 const COLORS = {
   red:[255,60,60], green:[60,220,140], blue:[60,140,220],
   yellow:[255,240,60], white:[240,240,250], orange:[255,165,0]
 };
 
+/* ===== orientation roll maps ===== */
 const ROLL = {
   north:o=>({top:o.south,bottom:o.bottom,north:o.north,south:o.top,east:o.east,west:o.west}),
   south:o=>({top:o.north,bottom:o.bottom,north:o.top,south:o.south,east:o.east,west:o.west}),
-  east:o =>({top:o.west,bottom:o.bottom,west:o.top,east:o.east,north:o.north,south:o.south}),
-  west:o =>({top:o.east,bottom:o.bottom,east:o.top,west:o.west,north:o.north,south:o.south}),
+  east: o=>({top:o.west,bottom:o.bottom,west:o.top,east:o.east,north:o.north,south:o.south}),
+  west: o=>({top:o.east,bottom:o.bottom,east:o.top,west:o.west,north:o.north,south:o.south})
 };
 
+/* ===== game state ===== */
 let cube = {
   x:2,y:2,
   o:{top:'white',bottom:'yellow',north:'green',south:'blue',east:'red',west:'orange'}
@@ -38,20 +44,24 @@ let goals = [
   {x:3,y:3,color:'green'}
 ];
 
-let dragStart=null;
+/* ===== drag tracking ===== */
+let dragging = false;
+let dragDX = 0, dragDY = 0;
 
+/* ===== helpers ===== */
 const world = (x,y)=>{
-  const r=GRID*S/2;
-  return [-r+S/2+x*S,-r+S/2+y*S];
+  const r = GRID * CELL / 2;
+  return [-r + CELL/2 + x*CELL, -r + CELL/2 + y*CELL];
 };
 
 function drawCube(p,x,y,o){
-  const [cx,cy]=world(x,y);
-  const h=CUBE/2;
+  const [cx,cy] = world(x,y);
+  const h = CUBE/2;
   p.push();
   p.translate(cx,cy,h);
   p.noStroke();
-  const face=(dx,dy,dz,c)=>{
+
+  const face = (dx,dy,dz,c)=>{
     p.fill(...COLORS[c]);
     p.beginShape();
     p.vertex( dx*h, dy*h, dz*h);
@@ -60,82 +70,96 @@ function drawCube(p,x,y,o){
     p.vertex(-dx*h, dy*h, dz*h);
     p.endShape(p.CLOSE);
   };
-  face(0,0,1,o.top);
+
+  face(0,0, 1,o.top);
   face(0,0,-1,o.bottom);
-  face(0,1,0,o.north);
+  face(0,1, 0,o.north);
   face(0,-1,0,o.south);
-  face(1,0,0,o.east);
+  face(1,0, 0,o.east);
   face(-1,0,0,o.west);
   p.pop();
 }
 
+/* ===== p5 ===== */
 new p5(p=>{
-  p.setup=()=>p.createCanvas(p.windowWidth,p.windowHeight,p.WEBGL);
+  p.setup = ()=>p.createCanvas(p.windowWidth,p.windowHeight,p.WEBGL);
 
-  p.draw=()=>{
+  p.draw = ()=>{
     p.background(16);
     p.lights();
 
-    const r=GRID*S/2;
+    const r = GRID * CELL / 2;
     p.stroke(255,80); p.noFill();
     for(let i=0;i<=GRID;i++){
-      const t=-r+i*S;
+      const t = -r + i*CELL;
       p.line(t,-r,0,t,r,0);
       p.line(-r,t,0,r,t,0);
     }
 
     goals.forEach(g=>{
-      const [x,y]=world(g.x,g.y);
+      const [x,y] = world(g.x,g.y);
       p.push();
       p.translate(x,y,0);
       p.noStroke();
       p.fill(...COLORS[g.color]);
       p.rectMode(p.CENTER);
-      p.rect(0,0,S*0.6,S*0.6);
+      p.rect(0,0,CELL*0.6,CELL*0.6);
       p.pop();
     });
 
     drawCube(p,cube.x,cube.y,cube.o);
 
-    if(dragStart){
+    if(dragging){
       p.resetMatrix();
       p.translate(-p.width/2,-p.height/2);
       p.stroke(255);
-      p.line(dragStart.x,dragStart.y,p.mouseX,p.mouseY);
+      p.line(p.mouseX-dragDX,p.mouseY-dragDY,p.mouseX,p.mouseY);
     }
 
-    const solved=goals.every(g=>g.x===cube.x&&g.y===cube.y&&cube.o.top===g.color);
+    const solved = goals.every(g =>
+      g.x===cube.x && g.y===cube.y && cube.o.top===g.color
+    );
+
     if(solved){
       p.resetMatrix();
       p.translate(-p.width/2,-p.height/2);
-      p.fill(255);p.noStroke();p.textSize(32);
+      p.fill(255); p.noStroke(); p.textSize(32);
       p.text("Solved!",20,40);
     }
   };
 
-  p.mousePressed=()=>{
-    dragStart={x:p.mouseX,y:p.mouseY};
+  p.mousePressed = ()=>{
+    dragging = true;
+    dragDX = dragDY = 0;
   };
 
-  p.mouseReleased=()=>{
-    if(!dragStart) return;
-    const dx=p.mouseX-dragStart.x;
-    const dy=p.mouseY-dragStart.y;
-    dragStart=null;
+  p.mouseDragged = ()=>{
+    if(!dragging) return;
+    dragDX += p.movedX;
+    dragDY += p.movedY;
+  };
 
-    if(Math.hypot(dx,dy)<25) return;
+  p.mouseReleased = ()=>{
+    if(!dragging) return;
+    dragging = false;
 
-    let dir = Math.abs(dx)>Math.abs(dy)
-      ? (dx>0?'east':'west')
-      : (dy>0?'south':'north');
+    if(Math.hypot(dragDX,dragDY) < DRAG_THRESHOLD) return;
 
-    const nx=cube.x+(dir==='east')-(dir==='west');
-    const ny=cube.y+(dir==='south')-(dir==='north');
+    let dir =
+      Math.abs(dragDX) > Math.abs(dragDY)
+        ? (dragDX>0?'east':'west')
+        : (dragDY>0?'south':'north');
+
+    const nx = cube.x + (dir==='east') - (dir==='west');
+    const ny = cube.y + (dir==='south') - (dir==='north');
     if(nx<0||nx>=GRID||ny<0||ny>=GRID) return;
 
-    cube.x=nx; cube.y=ny;
-    cube.o=ROLL[dir](cube.o);
+    cube.x = nx;
+    cube.y = ny;
+    cube.o = ROLL[dir](cube.o);
   };
+
+  p.windowResized = ()=>p.resizeCanvas(p.windowWidth,p.windowHeight);
 });
 </script>
 </body>
