@@ -42,7 +42,7 @@ async function loadLevel() {
   }
   
   if (window.location.pathname === "/") window.history.replaceState(null, "", "./tutorial");
-  const baseUrl = window.location.origin + "/";
+  const baseUrl = new URL(".", window.location.href);
   const url = new URL(`levels/${level}.json`, baseUrl);
   try {
     const res = await fetch(url);
