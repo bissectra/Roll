@@ -56,7 +56,30 @@ new p5((p) => {
       }
       if (raw >= 1) anim = null;
     }
-    winDiv.style.opacity = goalsSatisfied() ? "1" : "0";
+    const completed = goalsSatisfied();
+    winDiv.style.opacity = completed ? "1" : "0";
+    if (completed) {
+      try {
+        const levelName = getLevelName ? getLevelName() : null;
+        if (levelName) {
+          let prev = null;
+          try {
+            const raw = localStorage.getItem(`completed_${levelName}`);
+            prev = raw ? JSON.parse(raw) : null;
+          } catch (_) {
+            prev = null;
+          }
+          const currentLen = Array.isArray(moveHistory) ? moveHistory.length : Number.POSITIVE_INFINITY;
+          const prevLen = prev && Array.isArray(prev.moveHistory) ? prev.moveHistory.length : Number.POSITIVE_INFINITY;
+          if (!prev || currentLen < prevLen) {
+            const record = { completedAt: Date.now(), moveHistory: Array.isArray(moveHistory) ? [...moveHistory] : [] };
+            localStorage.setItem(`completed_${levelName}`, JSON.stringify(record));
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to record completion status", e);
+      }
+    }
   };
 
   p.mousePressed = () => {

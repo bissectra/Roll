@@ -72,15 +72,27 @@
       const LEVEL_IDS = ["tutorial", "traffic"];
       const grid = document.getElementById("levels-grid");
 
-      function moveCountFor(id) {
+      function bestCompletionFor(id) {
         try {
-          const raw = localStorage.getItem(`moveHistory_${id}`);
+          const raw = localStorage.getItem(`completed_${id}`);
           if (!raw) return null;
-          const arr = JSON.parse(raw);
-          return Array.isArray(arr) ? arr.length : null;
+          const obj = JSON.parse(raw);
+          if (!obj || !Array.isArray(obj.moveHistory)) return null;
+          return obj;
         } catch (e) {
           return null;
         }
+      }
+
+      function moveCountFor(id) {
+        const rec = bestCompletionFor(id);
+        if (!rec) return null;
+        const arr = rec.moveHistory;
+        return Array.isArray(arr) ? arr.length : null;
+      }
+
+      function isCompleted(id) {
+        return !!bestCompletionFor(id);
       }
 
       function starsFor(level, moves) {
@@ -88,6 +100,8 @@
         const t3 = stars.three;
         const t2 = stars.two;
         const t1 = stars.one;
+        // Only grant stars if the level has been completed at least once
+        if (!isCompleted(level.id)) return 0;
         if (moves == null) return 0;
         if (t3 != null && moves <= t3) return 3;
         if (t2 != null && moves <= t2) return 2;
@@ -105,7 +119,13 @@
         const meta = document.createElement("div");
         meta.className = "meta";
         const moves = moveCountFor(level.id);
-        meta.textContent = `${level.difficulty || "Level"} • Moves: ${moves ?? "–"}`;
+        const best = bestCompletionFor(level.id);
+        const bestDate = best && best.completedAt ? new Date(best.completedAt).toLocaleDateString() : null;
+        if (best && moves != null) {
+          meta.textContent = `Best: ${moves} moves • ${bestDate}`;
+        } else {
+          meta.textContent = `${level.difficulty || "Level"}`;
+        }
 
         const starLine = document.createElement("div");
         starLine.className = "stars";
