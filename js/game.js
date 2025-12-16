@@ -94,7 +94,18 @@ new p5((p) => {
     if (occupied(nx, ny, pickedCube)) return;
 
     const cubeIndex = cubes.indexOf(pickedCube);
-    moveHistory.push([cubeIndex, dir]);
+    const oppositeDir = { north: "south", south: "north", east: "west", west: "east" }[dir];
+    
+    if (moveHistory.length > 0) {
+      const lastMove = moveHistory[moveHistory.length - 1];
+      if (lastMove[0] === cubeIndex && lastMove[1] === oppositeDir) {
+        moveHistory.pop();
+      } else {
+        moveHistory.push([cubeIndex, dir]);
+      }
+    } else {
+      moveHistory.push([cubeIndex, dir]);
+    }
     console.log("Move history:", moveHistory);
 
     anim = {
