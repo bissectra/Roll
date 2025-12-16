@@ -15,42 +15,18 @@
   </head>
 
   <body>
-    <!-- UI overlay -->
-    <div
-      id="win"
-      style="
-        position: fixed;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: system-ui, sans-serif;
-        font-size: 32px;
-        color: white;
-        pointer-events: none;
-        opacity: 0;
-        transition: opacity 0.2s;
-      "
-    >
+    <div id="win" style="position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; font-family: system-ui, sans-serif; font-size: 32px; color: white; pointer-events: none; opacity: 0; transition: opacity 0.2s;">
       Level complete!
     </div>
 
     <script>
       const winDiv = document.getElementById("win");
-
-      /* =====================
-   Parameters
-===================== */
       const GRID = 5;
       const CELL = 80;
       const CUBE = CELL * 0.85;
       const PICK_RADIUS = CELL * 0.45;
       const DRAG_THRESHOLD = 20;
       const ANIM_MS = 250;
-
-      /* =====================
-   Colors
-===================== */
       const COLORS = {
         white: [240, 240, 250],
         yellow: [255, 240, 60],
@@ -59,10 +35,6 @@
         red: [255, 60, 60],
         orange: [255, 165, 0],
       };
-
-      /* =====================
-   Discrete roll
-===================== */
       const ROLL = {
         north: (o) => ({
           top: o.south,
@@ -97,10 +69,6 @@
           south: o.south,
         }),
       };
-
-      /* =====================
-   Drawing
-===================== */
       function quad(p, a, b, c, d, color) {
         p.noStroke();
         p.fill(...COLORS[color]);
@@ -130,24 +98,14 @@
         quad(p, p101, p100, p110, p111, o.east);
         quad(p, p000, p001, p011, p010, o.west);
       }
-
-      /* =====================
-   State
-===================== */
       let cubes = [];
       let goals = [];
       let anim = null;
       let ready = false;
       let nextLevel = null;
-
       let dragging = false;
-      let dragDX = 0,
-        dragDY = 0;
+      let dragDX = 0, dragDY = 0;
       let pickedCube = null;
-
-      /* =====================
-   Helpers
-===================== */
       const inside = (x, y) => x >= 0 && x < GRID && y >= 0 && y < GRID;
 
       const occupied = (x, y, ignore = null) =>
@@ -169,7 +127,6 @@
       }
 
       const ease = (t) => t * t * (3 - 2 * t);
-
       function rotationAngles(dir, e) {
         const a = (-e * Math.PI) / 2;
         if (dir === "north") return { rx: -a, ry: 0 };
@@ -184,10 +141,6 @@
           cubes.some((c) => c.x === g.x && c.y === g.y && c.o.top === g.top)
         );
       }
-
-      /* =====================
-   Picking
-===================== */
       function pickCubeAtMouse(p) {
         const mx = p.mouseX - p.width / 2;
         const my = p.mouseY - p.height / 2;
@@ -205,46 +158,23 @@
         }
         return best;
       }
-
-      /* =====================
-        Routing + level loading
-        ===================== */
       function getLevelName() {
         const parts = window.location.pathname.split("/").filter(Boolean);
-
-        // "/" → tutorial
-        if (parts.length === 0) {
-          return "tutorial";
-        }
-
+        if (parts.length === 0) return "tutorial";
         const lastPart = parts[parts.length - 1];
-        // Handle file:// URLs or accessing index.html directly
-        if (!lastPart || lastPart === "index.html" || lastPart.endsWith(".html")) {
-          return "tutorial";
-        }
-
+        if (!lastPart || lastPart === "index.html" || lastPart.endsWith(".html")) return "tutorial";
         return lastPart;
       }
 
       async function loadLevel() {
         const level = getLevelName();
-
-        // canonical redirect for "/"
-        if (window.location.pathname === "/") {
-          window.history.replaceState(null, "", "./tutorial");
-        }
-
-        // 🔑 LET THE BROWSER RESOLVE THE PATH
-        // Resolve relative to index.html, not the current URL path
+        if (window.location.pathname === "/") window.history.replaceState(null, "", "./tutorial");
         const baseUrl = window.location.origin + "/";
         const url = new URL(`levels/${level}.json`, baseUrl);
-
         try {
           const res = await fetch(url);
           if (!res.ok) throw new Error(res.status);
-
           const data = await res.json();
-
           cubes = data.cubes.map((c) => ({
             x: c.x,
             y: c.y,
@@ -253,7 +183,6 @@
           goals = data.goals || [];
           nextLevel = data.nextLevel || null;
           ready = true;
-
           document.title = "Cube Roll – " + level;
           console.log("Loaded", url.href);
         } catch (e) {
@@ -261,9 +190,6 @@
           console.error(e);
         }
       }
-      /* =====================
-   p5
-===================== */
       new p5((p) => {
         p.setup = () => {
           p.createCanvas(innerWidth, innerHeight, p.WEBGL);
@@ -273,8 +199,6 @@
         p.draw = () => {
           if (!ready) return;
           p.background(20);
-
-          // grid
           const r = (GRID * CELL) / 2;
           p.stroke(150);
           p.noFill();
@@ -283,11 +207,7 @@
             p.line(t, -r, 0, t, r, 0);
             p.line(-r, t, 0, r, t, 0);
           }
-
-          // goals
           goals.forEach((g) => drawGoal(p, g));
-
-          // static cubes
           cubes.forEach((c) => {
             if (anim && anim.cube === c && !anim.newCube) return;
             const [cx, cy] = world(c.x, c.y);
@@ -296,16 +216,12 @@
             drawCube(p, c.o);
             p.pop();
           });
-
-          // animated cube
           if (anim) {
             const raw = Math.min((p.millis() - anim.t0) / ANIM_MS, 1);
             const e = ease(raw);
-
             const x = p.lerp(anim.x0, anim.x1, e);
             const y = p.lerp(anim.y0, anim.y1, e);
             const ang = rotationAngles(anim.dir, e);
-
             const [cx, cy] = world(x, y);
             p.push();
             p.translate(cx, cy, CUBE / 2);
@@ -313,7 +229,6 @@
             if (ang.ry) p.rotateY(ang.ry);
             drawCube(p, anim.oldO);
             p.pop();
-
             if (raw >= 0.95 && !anim.newCube) {
               anim.cube.x = anim.x1;
               anim.cube.y = anim.y1;
@@ -322,7 +237,6 @@
             }
             if (raw >= 1) anim = null;
           }
-
           winDiv.style.opacity = goalsSatisfied() ? "1" : "0";
         };
 
