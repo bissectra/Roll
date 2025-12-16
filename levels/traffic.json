@@ -1,0 +1,57 @@
+{
+  "cubes": [
+    {
+      "x": 4,
+      "y": 0,
+      "orientation": {
+        "top": "green",
+        "bottom": "green",
+        "north": "green",
+        "south": "green",
+        "east": "green",
+        "west": "green"
+      }
+    },
+    {
+      "x": 4,
+      "y": 4,
+      "orientation": {
+        "top": "red",
+        "bottom": "red",
+        "north": "red",
+        "south": "red",
+        "east": "red",
+        "west": "red"
+      }
+    },
+    {
+      "x": 0,
+      "y": 4,
+      "orientation": {
+        "top": "yellow",
+        "bottom": "yellow",
+        "north": "yellow",
+        "south": "yellow",
+        "east": "yellow",
+        "west": "yellow"
+      }
+    }
+  ],
+  "goals": [
+    {
+      "x": 2,
+      "y": 1,
+      "top": "red"
+    },
+    {
+      "x": 2,
+      "y": 2,
+      "top": "yellow"
+    },
+    {
+      "x": 2,
+      "y": 3,
+      "top": "green"
+    }
+  ]
+}
