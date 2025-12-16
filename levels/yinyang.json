@@ -1,0 +1,60 @@
+{
+  "name": "Yin-Yang",
+  "description": "Form a yin-yang swirl on the 5x5 board with blue and white tops; exactly one cube per goal (21 cubes) and four empty corners for movement.",
+  "difficulty": "Hard",
+  "stars": { "three": 44, "two": 60, "one": 78 },
+  "cubes": [
+    { "x": 1, "y": 0, "orientation": { "top": "blue", "bottom": "white", "north": "green", "south": "red", "east": "yellow", "west": "orange" } },
+    { "x": 2, "y": 0, "orientation": { "top": "white", "bottom": "blue", "north": "orange", "south": "green", "east": "red", "west": "yellow" } },
+    { "x": 3, "y": 0, "orientation": { "top": "green", "bottom": "red", "north": "white", "south": "blue", "east": "orange", "west": "yellow" } },
+
+    { "x": 0, "y": 1, "orientation": { "top": "orange", "bottom": "yellow", "north": "blue", "south": "white", "east": "green", "west": "red" } },
+    { "x": 1, "y": 1, "orientation": { "top": "yellow", "bottom": "orange", "north": "red", "south": "green", "east": "white", "west": "blue" } },
+    { "x": 2, "y": 1, "orientation": { "top": "red", "bottom": "green", "north": "yellow", "south": "orange", "east": "blue", "west": "white" } },
+    { "x": 3, "y": 1, "orientation": { "top": "white", "bottom": "blue", "north": "green", "south": "yellow", "east": "red", "west": "orange" } },
+    { "x": 4, "y": 1, "orientation": { "top": "green", "bottom": "red", "north": "orange", "south": "yellow", "east": "white", "west": "blue" } },
+
+    { "x": 0, "y": 2, "orientation": { "top": "blue", "bottom": "white", "north": "yellow", "south": "orange", "east": "green", "west": "red" } },
+    { "x": 1, "y": 2, "orientation": { "top": "white", "bottom": "blue", "north": "red", "south": "green", "east": "orange", "west": "yellow" } },
+    { "x": 2, "y": 2, "orientation": { "top": "green", "bottom": "red", "north": "blue", "south": "white", "east": "yellow", "west": "orange" } },
+    { "x": 3, "y": 2, "orientation": { "top": "yellow", "bottom": "orange", "north": "white", "south": "blue", "east": "red", "west": "green" } },
+    { "x": 4, "y": 2, "orientation": { "top": "orange", "bottom": "yellow", "north": "blue", "south": "white", "east": "green", "west": "red" } },
+
+    { "x": 0, "y": 3, "orientation": { "top": "white", "bottom": "blue", "north": "green", "south": "red", "east": "yellow", "west": "orange" } },
+    { "x": 1, "y": 3, "orientation": { "top": "blue", "bottom": "white", "north": "orange", "south": "yellow", "east": "green", "west": "red" } },
+    { "x": 2, "y": 3, "orientation": { "top": "red", "bottom": "green", "north": "white", "south": "blue", "east": "orange", "west": "yellow" } },
+    { "x": 3, "y": 3, "orientation": { "top": "green", "bottom": "red", "north": "yellow", "south": "orange", "east": "white", "west": "blue" } },
+    { "x": 4, "y": 3, "orientation": { "top": "yellow", "bottom": "orange", "north": "blue", "south": "white", "east": "red", "west": "green" } },
+
+    { "x": 1, "y": 4, "orientation": { "top": "green", "bottom": "red", "north": "white", "south": "blue", "east": "orange", "west": "yellow" } },
+    { "x": 2, "y": 4, "orientation": { "top": "yellow", "bottom": "orange", "north": "blue", "south": "white", "east": "green", "west": "red" } },
+    { "x": 3, "y": 4, "orientation": { "top": "orange", "bottom": "yellow", "north": "green", "south": "red", "east": "white", "west": "blue" } }
+  ],
+  "goals": [
+    { "x": 1, "y": 0, "top": "blue" },
+    { "x": 2, "y": 0, "top": "blue" },
+    { "x": 3, "y": 0, "top": "white" },
+
+    { "x": 0, "y": 1, "top": "blue" },
+    { "x": 1, "y": 1, "top": "blue" },
+    { "x": 2, "y": 1, "top": "blue" },
+    { "x": 3, "y": 1, "top": "white" },
+    { "x": 4, "y": 1, "top": "white" },
+
+    { "x": 0, "y": 2, "top": "blue" },
+    { "x": 1, "y": 2, "top": "white" },  
+    { "x": 2, "y": 2, "top": "white" },
+    { "x": 3, "y": 2, "top": "white" },
+    { "x": 4, "y": 2, "top": "white" },
+
+    { "x": 0, "y": 3, "top": "blue" },
+    { "x": 1, "y": 3, "top": "white" },
+    { "x": 2, "y": 3, "top": "white" },
+    { "x": 3, "y": 3, "top": "white" },
+    { "x": 4, "y": 3, "top": "blue" },
+
+    { "x": 1, "y": 4, "top": "white" },
+    { "x": 2, "y": 4, "top": "white" },
+    { "x": 3, "y": 4, "top": "blue" }
+  ]
+}
