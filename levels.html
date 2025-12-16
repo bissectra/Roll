@@ -47,6 +47,9 @@
       .desc { color: #d1d5db; font-size: 14px; line-height: 1.4; }
       .footer { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
       .small { color: #6b7280; font-size: 12px; }
+      .stars { display: inline-flex; gap: 4px; align-items: center; }
+      .star { font-size: 20px; line-height: 1; color: #facc15; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.35)); }
+      .star.dim { color: #3b3f4a; }
     </style>
   </head>
   <body>
@@ -85,12 +88,11 @@
         const t3 = stars.three;
         const t2 = stars.two;
         const t1 = stars.one;
-        if (moves == null) return "☆☆☆";
-        let filled = 0;
-        if (t3 != null && moves <= t3) filled = 3;
-        else if (t2 != null && moves <= t2) filled = 2;
-        else if (t1 != null && moves <= t1) filled = 1;
-        return "★".repeat(filled) + "☆".repeat(3 - filled);
+        if (moves == null) return 0;
+        if (t3 != null && moves <= t3) return 3;
+        if (t2 != null && moves <= t2) return 2;
+        if (t1 != null && moves <= t1) return 1;
+        return 0;
       }
 
       function createCard(level) {
@@ -106,8 +108,14 @@
         meta.textContent = `${level.difficulty || "Level"} • Moves: ${moves ?? "–"}`;
 
         const starLine = document.createElement("div");
-        starLine.className = "small";
-        starLine.textContent = starsFor(level, moves);
+        starLine.className = "stars";
+        const filled = starsFor(level, moves);
+        for (let i = 0; i < 3; i++) {
+          const s = document.createElement("span");
+          s.className = "star" + (i < filled ? "" : " dim");
+          s.textContent = "★";
+          starLine.appendChild(s);
+        }
 
         const desc = document.createElement("p");
         desc.className = "desc";
