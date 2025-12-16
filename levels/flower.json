@@ -1,0 +1,94 @@
+{
+  "name": "Flower",
+  "description": "Arrange the cubes to form a flower pattern with a white center and yellow petals.",
+  "stars": { "three": 0, "two": 0, "one": 0 },
+  "cubes": [
+    {
+      "x": 1,
+      "y": 0,
+      "orientation": {
+        "top": "green",
+        "bottom": "green",
+        "north": "yellow",
+        "south": "green",
+        "east": "green",
+        "west": "green"
+      }
+    },
+    {
+      "x": 3,
+      "y": 0,
+      "orientation": {
+        "top": "green",
+        "bottom": "green",
+        "north": "green",
+        "south": "green",
+        "east": "yellow",
+        "west": "green"
+      }
+    },
+    {
+      "x": 3,
+      "y": 4,
+      "orientation": {
+        "top": "green",
+        "bottom": "green",
+        "north": "green",
+        "south": "green",
+        "east": "green",
+        "west": "yellow"
+      }
+    },
+    {
+      "x": 1,
+      "y": 4,
+      "orientation": {
+        "top": "green",
+        "bottom": "green",
+        "north": "green",
+        "south": "yellow",
+        "east": "green",
+        "west": "green"
+      }
+    },
+    {
+      "x": 2,
+      "y": 2,
+      "orientation": {
+        "top": "green",
+        "bottom": "white",
+        "north": "green",
+        "south": "green",
+        "east": "green",
+        "west": "green"
+      }
+    }
+  ],
+  "goals": [
+    {
+      "x": 2,
+      "y": 2,
+      "top": "white"
+    },
+    {
+      "x": 2,
+      "y": 1,
+      "top": "yellow"
+    },
+    {
+      "x": 3,
+      "y": 2,
+      "top": "yellow"
+    },
+    {
+      "x": 2,
+      "y": 3,
+      "top": "yellow"
+    },
+    {
+      "x": 1,
+      "y": 2,
+      "top": "yellow"
+    }
+  ]
+}
