@@ -1,134 +1,203 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8" />
-<title>3D Cube MVP – Orientation + Picking</title>
+<meta charset="utf-8">
+<title>Cube Roll – Correct Local Quaternion Axes (NS sign fixed)</title>
 <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
-<style>html,body{margin:0;background:#111}</style>
+<style>
+html,body { margin:0; background:#111; overflow:hidden; }
+</style>
 </head>
 <body>
 <script>
+/* =======================
+   Parameters
+======================= */
 const GRID = 5;
 const CELL = 80;
 const CUBE = CELL * 0.85;
 const DRAG_THRESHOLD = 20;
-const PICK_RADIUS = 45;
+const ANIM_MS = 220;
 
+/* =======================
+   Colors
+======================= */
 const COLORS = {
-  red:[255,60,60], green:[60,220,140], blue:[60,140,220],
-  yellow:[255,240,60], white:[240,240,250], orange:[255,165,0]
+  red:[255,60,60],
+  green:[60,220,140],
+  blue:[60,140,220],
+  yellow:[255,240,60],
+  white:[240,240,250],
+  orange:[255,165,0],
 };
 
-const ROLL = {
-  north:o=>({ top:o.south, bottom:o.north, north:o.top,    south:o.bottom, east:o.east, west:o.west }),
-  south:o=>({ top:o.north, bottom:o.south, north:o.bottom, south:o.top,    east:o.east, west:o.west }),
-  east: o=>({ top:o.west,  bottom:o.east,  east:o.top,     west:o.bottom,  north:o.north, south:o.south }),
-  west: o=>({ top:o.east,  bottom:o.west,  east:o.bottom,  west:o.top,     north:o.north, south:o.south })
+/* =======================
+   Discrete orientation
+======================= */
+const freshOrientation = () => ({
+  top:'white', bottom:'yellow',
+  north:'green', south:'blue',
+  east:'red', west:'orange'
+});
+
+const ROLL_MAP = {
+  north:o=>({top:o.south,bottom:o.north,north:o.top,south:o.bottom,east:o.east,west:o.west}),
+  south:o=>({top:o.north,bottom:o.south,north:o.bottom,south:o.top,east:o.east,west:o.west}),
+  east: o=>({top:o.west,bottom:o.east,east:o.top,west:o.bottom,north:o.north,south:o.south}),
+  west: o=>({top:o.east,bottom:o.west,east:o.bottom,west:o.top,north:o.north,south:o.south}),
 };
 
-function freshOrientation(){
-  return { top:'white', bottom:'yellow', north:'green', south:'blue', east:'red', west:'orange' };
+/* =======================
+   Quaternion math
+======================= */
+const quat = (w,x,y,z)=>({w,x,y,z});
+
+const quatMul = (a,b)=>({
+  w: a.w*b.w - a.x*b.x - a.y*b.y - a.z*b.z,
+  x: a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y,
+  y: a.w*b.y - a.x*b.z + a.y*b.w + a.z*b.x,
+  z: a.w*b.z + a.x*b.y - a.y*b.x + a.z*b.w,
+});
+
+const quatFromAxisAngle = (ax,ay,az,angle)=>{
+  const h = angle/2;
+  const s = Math.sin(h);
+  return quat(Math.cos(h), ax*s, ay*s, az*s);
+};
+
+function quatApply(p,q){
+  const angle = 2*Math.acos(q.w);
+  const s = Math.sin(angle/2);
+  if (s < 1e-6) return;
+  p.rotate(angle, [q.x/s, q.y/s, q.z/s]);
 }
 
-let cubes = [
-  { id:1, x:1, y:1, o:freshOrientation() },
-  { id:2, x:3, y:1, o:freshOrientation() },
-  { id:3, x:2, y:3, o:freshOrientation() }
-];
+/* =======================
+   Orientation → quaternion
+======================= */
+const FACE_DIR = {
+  white:[0,0,1],  yellow:[0,0,-1],
+  blue:[0,1,0],   green:[0,-1,0],
+  red:[1,0,0],    orange:[-1,0,0],
+};
 
-let activeCube = null;
-let dragging = false;
-let dragDX = 0, dragDY = 0;
-
-function inside(x,y){ return x>=0 && x<GRID && y>=0 && y<GRID; }
-function occupied(x,y,ignore=null){ return cubes.some(c=>c!==ignore && c.x===x && c.y===y); }
-
-function world(x,y){
-  const r = GRID * CELL / 2;
-  return [-r + CELL/2 + x*CELL, -r + CELL/2 + y*CELL];
-}
-
-/* ---- projection helper (no screenPosition required) ---- */
-function project(p, x, y, z){
-  // 1) if available, use it
-  if (typeof p.screenPosition === "function") {
-    const v = p.screenPosition(x,y,z);
-    return { x:v.x, y:v.y };
+function quatFromRotationMatrix(m00,m01,m02,m10,m11,m12,m20,m21,m22){
+  const tr = m00+m11+m22;
+  let w,x,y,z;
+  if (tr > 0) {
+    const s = Math.sqrt(tr+1)*2;
+    w = 0.25*s;
+    x = (m21-m12)/s;
+    y = (m02-m20)/s;
+    z = (m10-m01)/s;
+  } else if (m00 > m11 && m00 > m22) {
+    const s = Math.sqrt(1+m00-m11-m22)*2;
+    w = (m21-m12)/s;
+    x = 0.25*s;
+    y = (m01+m10)/s;
+    z = (m02+m20)/s;
+  } else if (m11 > m22) {
+    const s = Math.sqrt(1+m11-m00-m22)*2;
+    w = (m02-m20)/s;
+    x = (m01+m10)/s;
+    y = 0.25*s;
+    z = (m12+m21)/s;
+  } else {
+    const s = Math.sqrt(1+m22-m00-m11)*2;
+    w = (m10-m01)/s;
+    x = (m02+m20)/s;
+    y = (m12+m21)/s;
+    z = 0.25*s;
   }
-
-  // 2) use internal WEBGL matrices (works in many p5 versions)
-  const r = p._renderer;
-  if (r && r.uMVMatrix && r.uPMatrix && r.uMVMatrix.mat4 && r.uPMatrix.mat4) {
-    const mv = r.uMVMatrix.mat4;
-    const pr = r.uPMatrix.mat4;
-
-    // multiply vec4 by mat4
-    const mul = (m, v) => ([
-      m[0]*v[0] + m[4]*v[1] + m[8]*v[2]  + m[12]*v[3],
-      m[1]*v[0] + m[5]*v[1] + m[9]*v[2]  + m[13]*v[3],
-      m[2]*v[0] + m[6]*v[1] + m[10]*v[2] + m[14]*v[3],
-      m[3]*v[0] + m[7]*v[1] + m[11]*v[2] + m[15]*v[3],
-    ]);
-
-    const v = [x,y,z,1];
-    const eye = mul(mv, v);
-    const clip = mul(pr, eye);
-    const w = clip[3] || 1e-9;
-    const ndcX = clip[0]/w;
-    const ndcY = clip[1]/w;
-
-    return {
-      x: (ndcX * 0.5 + 0.5) * p.width,
-      y: (-ndcY * 0.5 + 0.5) * p.height
-    };
-  }
-
-  // 3) last-resort fallback (still OK for near-orthographic feel)
-  return { x: p.width/2 + x, y: p.height/2 + y };
+  return quat(w,x,y,z);
 }
 
-function pickCube(p){
-  let best=null, bestD=PICK_RADIUS;
-  for(const c of cubes){
-    const [wx,wy]=world(c.x,c.y);
-    const wz=CUBE/2;
-    const s = project(p, wx, wy, wz);
-    const d = Math.hypot(p.mouseX - s.x, p.mouseY - s.y);
-    if(d < bestD){ bestD=d; best=c; }
-  }
-  return best;
+function quatFromOrientation(o){
+  // local +X = east face of base cube
+  // local +Y = south face of base cube
+  // local +Z = top face of base cube
+  const ex = FACE_DIR[o.east];
+  const ey = FACE_DIR[o.south];
+  const ez = FACE_DIR[o.top];
+  return quatFromRotationMatrix(
+    ex[0], ey[0], ez[0],
+    ex[1], ey[1], ez[1],
+    ex[2], ey[2], ez[2]
+  );
 }
 
+/* =======================
+   Drawing
+======================= */
 function quad(p,a,b,c,d,col){
   p.noStroke();
   p.fill(...COLORS[col]);
   p.beginShape();
-  p.vertex(...a); p.vertex(...b); p.vertex(...c); p.vertex(...d);
+  p.vertex(...a); p.vertex(...b);
+  p.vertex(...c); p.vertex(...d);
   p.endShape(p.CLOSE);
 }
 
-function drawCube(p,o){
-  const h=CUBE/2;
-  const p000=[-h,-h,-h], p001=[-h,-h, h], p010=[-h, h,-h], p011=[-h, h, h];
-  const p100=[ h,-h,-h], p101=[ h,-h, h], p110=[ h, h,-h], p111=[ h, h, h];
+const BASE = freshOrientation();
 
-  quad(p, p001,p101,p111,p011, o.top);
-  quad(p, p000,p010,p110,p100, o.bottom);
-  quad(p, p011,p111,p110,p010, o.south);
-  quad(p, p000,p100,p101,p001, o.north);
-  quad(p, p101,p100,p110,p111, o.east);
-  quad(p, p000,p001,p011,p010, o.west);
+function drawBaseCube(p){
+  const h = CUBE/2;
+  const p000=[-h,-h,-h], p001=[-h,-h, h];
+  const p010=[-h, h,-h], p011=[-h, h, h];
+  const p100=[ h,-h,-h], p101=[ h,-h, h];
+  const p110=[ h, h,-h], p111=[ h, h, h];
+
+  quad(p,p001,p101,p111,p011,BASE.top);
+  quad(p,p000,p010,p110,p100,BASE.bottom);
+  quad(p,p011,p111,p110,p010,BASE.south);
+  quad(p,p000,p100,p101,p001,BASE.north);
+  quad(p,p101,p100,p110,p111,BASE.east);
+  quad(p,p000,p001,p011,p010,BASE.west);
 }
 
+/* =======================
+   State
+======================= */
+let cube = { x:2, y:2, o:freshOrientation() };
+let anim = null;
+let dragDX=0, dragDY=0, dragging=false;
+
+/* =======================
+   Helpers
+======================= */
+const inside = (x,y)=>x>=0&&x<GRID&&y>=0&&y<GRID;
+const world = (x,y)=>{
+  const r = GRID*CELL/2;
+  return [-r + CELL/2 + x*CELL, -r + CELL/2 + y*CELL];
+};
+
+/* LOCAL axes (correct) */
+const ROLL_AXIS = {
+  north:[1,0,0],
+  south:[1,0,0],
+  east: [0,1,0],
+  west: [0,1,0],
+};
+
+/* ✅ FIX: swap NS signs */
+const ROLL_SIGN = {
+  north: -1,
+  south:  1,
+  east:  -1,
+  west:   1,
+};
+
+/* =======================
+   p5
+======================= */
 new p5(p=>{
-  p.setup=()=>p.createCanvas(window.innerWidth, window.innerHeight, p.WEBGL);
+  p.setup=()=>p.createCanvas(innerWidth,innerHeight,p.WEBGL);
 
   p.draw=()=>{
     p.background(20);
-    p.ambientLight(90);
-    p.directionalLight(220,220,220, 0.3,0.6,-1);
 
-    const r=GRID*CELL/2;
+    // grid
+    const r = GRID*CELL/2;
     p.stroke(160); p.noFill();
     for(let i=0;i<=GRID;i++){
       const t=-r+i*CELL;
@@ -136,55 +205,65 @@ new p5(p=>{
       p.line(-r,t,0,r,t,0);
     }
 
-    for(const c of cubes){
-      const [cx,cy]=world(c.x,c.y);
-      p.push();
-      p.translate(cx,cy,CUBE/2);
-      drawCube(p,c.o);
-      p.pop();
+    let x=cube.x, y=cube.y;
+    const qStart = quatFromOrientation(cube.o);
+    let q = qStart;
+
+    if(anim){
+      const t = Math.min((p.millis()-anim.t0)/ANIM_MS,1);
+      const e = t*t*(3-2*t);
+
+      x = p.lerp(anim.x0, anim.x1, e);
+      y = p.lerp(anim.y0, anim.y1, e);
+
+      const ang = e * Math.PI/2 * ROLL_SIGN[anim.dir];
+      const ax = ROLL_AXIS[anim.dir];
+      const qRoll = quatFromAxisAngle(ax[0],ax[1],ax[2],ang);
+
+      // local/body rotation:
+      q = quatMul(qStart, qRoll);
+
+      if(t>=1){
+        cube.x = anim.x1;
+        cube.y = anim.y1;
+        cube.o = anim.o1;
+        anim = null;
+      }
     }
 
-    if(dragging){
-      p.resetMatrix();
-      p.translate(-p.width/2,-p.height/2);
-      p.stroke(255);
-      p.line(p.mouseX-dragDX, p.mouseY-dragDY, p.mouseX, p.mouseY);
-    }
+    const [cx,cy] = world(x,y);
+    p.push();
+    p.translate(cx,cy,CUBE/2);
+    quatApply(p,q);
+    drawBaseCube(p);
+    p.pop();
   };
 
-  p.mousePressed=()=>{
-    activeCube = pickCube(p);
-    dragging = true;
-    dragDX = dragDY = 0;
-  };
-
-  p.mouseDragged=()=>{
-    if(!dragging) return;
-    dragDX += p.movedX;
-    dragDY += p.movedY;
-  };
-
+  p.mousePressed=()=>{ dragging=true; dragDX=dragDY=0; };
+  p.mouseDragged=()=>{ if(dragging){ dragDX+=p.movedX; dragDY+=p.movedY; } };
   p.mouseReleased=()=>{
-    if(!dragging) return;
-    dragging = false;
-    if(!activeCube) return;
-    if(Math.hypot(dragDX,dragDY) < DRAG_THRESHOLD) return;
+    dragging=false;
+    if(anim || Math.hypot(dragDX,dragDY) < DRAG_THRESHOLD) return;
 
     const dir =
       Math.abs(dragDX) > Math.abs(dragDY)
-        ? (dragDX>0?'east':'west')
-        : (dragDY>0?'south':'north');
+        ? (dragDX>0 ? 'east' : 'west')
+        : (dragDY>0 ? 'south' : 'north');
 
-    const nx = activeCube.x + (dir==='east') - (dir==='west');
-    const ny = activeCube.y + (dir==='south') - (dir==='north');
-    if(!inside(nx,ny) || occupied(nx,ny,activeCube)) return;
+    const nx = cube.x + (dir==='east') - (dir==='west');
+    const ny = cube.y + (dir==='south') - (dir==='north');
+    if(!inside(nx,ny)) return;
 
-    activeCube.x = nx;
-    activeCube.y = ny;
-    activeCube.o = ROLL[dir](activeCube.o);
+    anim = {
+      dir,
+      x0:cube.x, y0:cube.y,
+      x1:nx, y1:ny,
+      o1:ROLL_MAP[dir](cube.o),
+      t0:p.millis()
+    };
   };
 
-  p.windowResized=()=>p.resizeCanvas(window.innerWidth, window.innerHeight);
+  p.windowResized=()=>p.resizeCanvas(innerWidth, innerHeight);
 });
 </script>
 </body>
