@@ -265,17 +265,27 @@ new p5((p) => {
   };
 
   // Touch events mapped to the same handlers for mobile
-  p.touchStarted = () => {
+  // Allow default behavior (no preventDefault) when interacting with nav/buttons
+  p.touchStarted = (e) => {
+    if (e && e.target && (e.target.closest && e.target.closest('#nav'))) {
+      return true; // let the button handle the tap
+    }
     beginInteraction(p);
-    return false; // prevent default scrolling
+    return false; // prevent default scrolling/zoom on canvas gestures
   };
 
-  p.touchMoved = () => {
+  p.touchMoved = (e) => {
+    if (e && e.target && (e.target.closest && e.target.closest('#nav'))) {
+      return true;
+    }
     updateInteraction(p);
     return false;
   };
 
-  p.touchEnded = () => {
+  p.touchEnded = (e) => {
+    if (e && e.target && (e.target.closest && e.target.closest('#nav'))) {
+      return true;
+    }
     endInteraction(p);
     return false;
   };
