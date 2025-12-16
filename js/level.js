@@ -48,6 +48,25 @@ async function loadLevel() {
     replayMoves(moveHistory);
     ready = true;
     document.title = "Cube Roll – " + level;
+    
+    // Update HUD with level metadata
+    const hudName = document.getElementById("hud-name");
+    const hudDifficulty = document.getElementById("hud-difficulty");
+    const hudDescription = document.getElementById("hud-description");
+    const hudStars = document.getElementById("hud-stars");
+    
+    if (hudName) hudName.textContent = data.name || level;
+    if (hudDifficulty) hudDifficulty.textContent = data.difficulty || "–";
+    if (hudDescription) hudDescription.textContent = data.description || "–";
+    
+    // Update stars thresholds in HUD
+    if (hudStars && data.stars) {
+      const t1 = data.stars.one ?? "–";
+      const t2 = data.stars.two ?? "–";
+      const t3 = data.stars.three ?? "–";
+      hudStars.textContent = `★: ${t1} • ${t2} • ${t3}`;
+    }
+    
     console.log("Loaded", url.href);
   } catch (e) {
     alert("Failed to load " + url.href);

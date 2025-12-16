@@ -6,8 +6,15 @@ let dragging = false;
 let dragDX = 0, dragDY = 0;
 let pickedCube = null;
 let moveHistory = [];
+let lastCompletionCheck = false;
+let isCompleted = false;
 
 const winDiv = document.getElementById("win");
+const hudName = document.getElementById("hud-name");
+const hudDifficulty = document.getElementById("hud-difficulty");
+const hudDescription = document.getElementById("hud-description");
+const hudStars = document.getElementById("hud-stars");
+const hudMoves = document.getElementById("hud-moves");
 
 new p5((p) => {
   p.setup = () => {
@@ -53,12 +60,18 @@ new p5((p) => {
         anim.cube.y = anim.y1;
         anim.cube.o = ROLL[anim.dir](anim.oldO);
         anim.newCube = true;
+        // Check completion after move settles
+        isCompleted = goalsSatisfied();
       }
       if (raw >= 1) anim = null;
     }
-    const completed = goalsSatisfied();
-    winDiv.style.opacity = completed ? "1" : "0";
-    if (completed) {
+    winDiv.style.opacity = isCompleted ? "1" : "0";
+    
+    // Update HUD
+    hudMoves.textContent = moveHistory.length;
+    
+    // Save completion only on state transition (not every frame)
+    if (isCompleted && !lastCompletionCheck) {
       try {
         const levelName = getLevelName ? getLevelName() : null;
         if (levelName) {
@@ -80,6 +93,7 @@ new p5((p) => {
         console.warn("Failed to record completion status", e);
       }
     }
+    lastCompletionCheck = isCompleted;
   };
 
   p.mousePressed = () => {
@@ -129,6 +143,7 @@ new p5((p) => {
       moveHistory.push([cubeIndex, dir]);
     }
     saveMoveHistory();
+    lastCompletionCheck = false; // Reset so completion can be checked after this move
     console.log("Move history:", moveHistory);
 
     anim = {
