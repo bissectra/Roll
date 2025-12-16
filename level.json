@@ -1,0 +1,28 @@
+{
+  "cubes": [
+    {
+      "x": 2,
+      "y": 2,
+      "orientation": {
+        "top": "yellow",
+        "bottom": "white",
+        "north": "green",
+        "south": "blue",
+        "east": "red",
+        "west": "orange"
+      }
+    },
+    {
+      "x": 4,
+      "y": 3,
+      "orientation": {
+        "top": "blue",
+        "bottom": "white",
+        "north": "red",
+        "south": "orange",
+        "east": "green",
+        "west": "yellow"
+      }
+    }
+  ]
+}
