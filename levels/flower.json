@@ -2,7 +2,7 @@
   "name": "Flower",
   "description": "Arrange the cubes to form a flower pattern with a white center and yellow petals.",
   "stars": { "three": 24, "two": 30, "one": 36 },
-  "difficulty": "Medium",
+  "difficulty": "Hard",
   "cubes": [
     {
       "x": 1,
