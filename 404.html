@@ -20,10 +20,9 @@
     <div id="nav">
       <div class="nav-left">
         <button type="button" onclick="window.location.href='./levels.html'" aria-label="Open level selector">Levels</button>
-        <button type="button" onclick="if(window.resetMoves) window.resetMoves();" aria-label="Reset moves">Reset</button>
       </div>
       <div class="nav-right">
-        <button type="button" id="level-info" aria-label="Current level info" disabled>Level</button>
+        <button type="button" id="level-info" aria-label="Reset level" onclick="if(window.resetMoves) window.resetMoves();">Level</button>
       </div>
     </div>
     <div id="win">

@@ -90,7 +90,12 @@ async function loadLevel() {
     // Update simplified HUD elements
     const levelInfoBtn = document.getElementById("level-info");
     const hudDescBottom = document.getElementById("hud-desc-bottom");
-    if (levelInfoBtn) levelInfoBtn.textContent = `${data.name || level}`;
+    if (levelInfoBtn) {
+      levelInfoBtn.textContent = `${data.name || level}`;
+      levelInfoBtn.title = "Reset level";
+      try { levelInfoBtn.disabled = false; } catch (_) {}
+      levelInfoBtn.onclick = () => { if (window.resetMoves) window.resetMoves(); };
+    }
     if (hudDescBottom) hudDescBottom.textContent = data.description || "–";
     
     console.log("Loaded", url.href);
