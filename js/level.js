@@ -57,14 +57,14 @@ async function loadLevel() {
     window.history.replaceState(null, "", cleanUrl);
   }
   
-  // Redirect base paths to /level/tutorial for consistency
+  // Redirect base paths to levels.html for consistency
   const path = window.location.pathname;
   const baseCandidates = ["/"];
   if (basePath) {
     baseCandidates.push(`/${basePath}`, `/${basePath}/`);
   }
   if (baseCandidates.includes(path)) {
-    window.location.replace(`${baseUrl}level/tutorial`);
+    window.location.replace(`${baseUrl}levels.html`);
     return;
   }
 
