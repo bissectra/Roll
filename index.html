@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Cube Roll – Matrix MVP (No Blink)</title>
+<title>Cube Roll – Matrix MVP (Stable)</title>
 <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
 <style>
 html,body{margin:0;overflow:hidden;background:#111;}
@@ -17,8 +17,7 @@ const GRID = 5;
 const CELL = 80;
 const CUBE = CELL * 0.85;
 const DRAG_THRESHOLD = 20;
-const ANIM_MS = 1000;
-const DRAW_OVERSHOOT = 1.5;
+const ANIM_MS = 250;
 
 /* =====================
    Colors + discrete orientation
@@ -116,7 +115,7 @@ new p5(p=>{
       p.line(-r,t,0,r,t,0);
     }
 
-    // ----- draw static cube (if no anim OR ghost already exists)
+    // draw snapped cube (always safe)
     if(!anim || anim.newCube){
       const [cx,cy]=world(cube.x,cube.y);
       p.push();
@@ -125,15 +124,14 @@ new p5(p=>{
       p.pop();
     }
 
-    // ----- draw animated cube
+    // draw animated cube
     if(anim){
-      const raw = (p.millis()-anim.t0)/ANIM_MS;
-      const tDraw = Math.min(raw, DRAW_OVERSHOOT);
-      const eDraw = ease(tDraw);
+      const raw = Math.min((p.millis()-anim.t0)/ANIM_MS, 1);
+      const e = ease(raw);
 
-      const x = p.lerp(anim.x0, anim.x1, eDraw);
-      const y = p.lerp(anim.y0, anim.y1, eDraw);
-      const ang = rotationAngles(anim.dir, eDraw);
+      const x = p.lerp(anim.x0, anim.x1, e);
+      const y = p.lerp(anim.y0, anim.y1, e);
+      const ang = rotationAngles(anim.dir, e);
 
       const [cx,cy]=world(x,y);
       p.push();
@@ -143,8 +141,8 @@ new p5(p=>{
       drawCube(p,anim.oldCube.o);
       p.pop();
 
-      // create snapped cube slightly before end
-      if(raw >= 0.98 && !anim.newCube){
+      // spawn snapped cube just before the end
+      if(raw >= 0.95 && !anim.newCube){
         anim.newCube = {
           x: anim.x1,
           y: anim.y1,
