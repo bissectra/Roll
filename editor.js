@@ -66,15 +66,12 @@ function initializeUI() {
   document.getElementById("export-btn").onclick = exportJSON;
   document.getElementById("import-btn").onclick = importJSON;
   document.getElementById("save-btn").onclick = downloadJSON;
-  document.getElementById("next-level").addEventListener("change", updateJSON);
 
   updateJSON();
 }
 
 function updateJSON() {
-  const nextLevel = document.getElementById("next-level").value || null;
   const data = { cubes, goals };
-  if (nextLevel) data.nextLevel = nextLevel;
   document.getElementById("json-output").textContent = JSON.stringify(data, null, 2);
   updateValidationStatus();
 }
@@ -114,7 +111,6 @@ function importJSON() {
     const data = JSON.parse(json);
     cubes = data.cubes || [];
     goals = data.goals || [];
-    document.getElementById("next-level").value = data.nextLevel || "";
     updateJSON();
   } catch (e) {
     alert("Invalid JSON: " + e.message);

@@ -44,7 +44,6 @@ async function loadLevel() {
       o: { ...c.orientation },
     }));
     goals = data.goals || [];
-    nextLevel = data.nextLevel || null;
     moveHistory = loadMoveHistory();
     replayMoves(moveHistory);
     ready = true;

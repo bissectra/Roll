@@ -2,7 +2,6 @@ let cubes = [];
 let goals = [];
 let anim = null;
 let ready = false;
-let nextLevel = null;
 let dragging = false;
 let dragDX = 0, dragDY = 0;
 let pickedCube = null;
@@ -123,9 +122,6 @@ new p5((p) => {
   };
 
   p.keyPressed = () => {
-    if (goalsSatisfied() && nextLevel) {
-      window.location.pathname = `/${nextLevel}`;
-    }
   };
 
   p.windowResized = () => p.resizeCanvas(innerWidth, innerHeight);
