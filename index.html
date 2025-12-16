@@ -1,108 +1,91 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="utf-8" />
-  <title>CubeRoll – Minimal</title>
-  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
-  <style>
-    html, body { margin: 0; background: #111; color: #eee; font-family: sans-serif; }
-    #hint { position: fixed; bottom: 10px; left: 10px; opacity: 0.7; }
-  </style>
+<meta charset="utf-8">
+<title>CubeRoll – Minimal</title>
+<script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+<style>
+html,body{margin:0;background:#111;color:#eee;font-family:sans-serif}
+#hint{position:fixed;bottom:10px;left:10px;opacity:.7}
+</style>
 </head>
 <body>
-<div id="hint">Drag the cube</div>
+<div id="hint">Drag to roll</div>
 <script>
-/* ================== constants ================== */
-
 const GRID = 5;
 const S = 60;
+const CUBE = S * 0.9;
+
 const COLORS = {
-  red: [255,60,60],
-  green: [60,220,140],
-  blue: [60,140,220],
-  yellow: [255,240,60],
-  white: [240,240,250],
-  orange: [255,165,0]
+  red:[255,60,60], green:[60,220,140], blue:[60,140,220],
+  yellow:[255,240,60], white:[240,240,250], orange:[255,165,0]
 };
 
-/* cube orientation = {top, north} */
 const ROLL = {
-  north: o => ({ top:o.south, south:o.top, north:o.north, bottom:o.bottom, east:o.east, west:o.west }),
-  south: o => ({ top:o.north, north:o.top, south:o.south, bottom:o.bottom, east:o.east, west:o.west }),
-  east:  o => ({ top:o.west, west:o.top, east:o.east, bottom:o.bottom, north:o.north, south:o.south }),
-  west:  o => ({ top:o.east, east:o.top, west:o.west, bottom:o.bottom, north:o.north, south:o.south }),
+  north:o=>({top:o.south,bottom:o.bottom,north:o.north,south:o.top,east:o.east,west:o.west}),
+  south:o=>({top:o.north,bottom:o.bottom,north:o.top,south:o.south,east:o.east,west:o.west}),
+  east:o =>({top:o.west,bottom:o.bottom,west:o.top,east:o.east,north:o.north,south:o.south}),
+  west:o =>({top:o.east,bottom:o.bottom,east:o.top,west:o.west,north:o.north,south:o.south}),
 };
-
-/* ================== state ================== */
 
 let cube = {
-  x: 2, y: 2,
-  o: { top:'white', bottom:'yellow', north:'green', south:'blue', east:'red', west:'orange' }
+  x:2,y:2,
+  o:{top:'white',bottom:'yellow',north:'green',south:'blue',east:'red',west:'orange'}
 };
 
 let goals = [
-  { x: 1, y: 1, color: 'red' },
-  { x: 3, y: 3, color: 'green' }
+  {x:1,y:1,color:'red'},
+  {x:3,y:3,color:'green'}
 ];
 
-let drag = null;
+let dragStart=null;
 
-/* ================== helpers ================== */
-
-function world(x,y){
-  const r = GRID*S/2;
-  return [-r + S/2 + x*S, -r + S/2 + y*S];
-}
+const world = (x,y)=>{
+  const r=GRID*S/2;
+  return [-r+S/2+x*S,-r+S/2+y*S];
+};
 
 function drawCube(p,x,y,o){
-  const [cx,cy] = world(x,y);
-  const h = S/2;
+  const [cx,cy]=world(x,y);
+  const h=CUBE/2;
   p.push();
   p.translate(cx,cy,h);
   p.noStroke();
-
-  const face = (dx,dy,dz,c) => {
+  const face=(dx,dy,dz,c)=>{
     p.fill(...COLORS[c]);
     p.beginShape();
-    p.vertex( dx*h,  dy*h,  dz*h);
-    p.vertex( dx*h, -dy*h,  dz*h);
-    p.vertex(-dx*h, -dy*h,  dz*h);
-    p.vertex(-dx*h,  dy*h,  dz*h);
+    p.vertex( dx*h, dy*h, dz*h);
+    p.vertex( dx*h,-dy*h, dz*h);
+    p.vertex(-dx*h,-dy*h, dz*h);
+    p.vertex(-dx*h, dy*h, dz*h);
     p.endShape(p.CLOSE);
   };
-
-  face( 0, 0, 1, o.top);
-  face( 0, 0,-1, o.bottom);
-  face( 0, 1, 0, o.north);
-  face( 0,-1, 0, o.south);
-  face( 1, 0, 0, o.east);
-  face(-1, 0, 0, o.west);
+  face(0,0,1,o.top);
+  face(0,0,-1,o.bottom);
+  face(0,1,0,o.north);
+  face(0,-1,0,o.south);
+  face(1,0,0,o.east);
+  face(-1,0,0,o.west);
   p.pop();
 }
 
-/* ================== p5 ================== */
-
 new p5(p=>{
-  p.setup = ()=>{
-    p.createCanvas(p.windowWidth, p.windowHeight, p.WEBGL);
-  };
+  p.setup=()=>p.createCanvas(p.windowWidth,p.windowHeight,p.WEBGL);
 
-  p.draw = ()=>{
+  p.draw=()=>{
     p.background(16);
     p.lights();
 
-    // grid
+    const r=GRID*S/2;
     p.stroke(255,80); p.noFill();
-    const r = GRID*S/2;
     for(let i=0;i<=GRID;i++){
-      const t = -r + i*S;
+      const t=-r+i*S;
       p.line(t,-r,0,t,r,0);
       p.line(-r,t,0,r,t,0);
     }
 
-    // goals
     goals.forEach(g=>{
-      const [x,y] = world(g.x,g.y);
+      const [x,y]=world(g.x,g.y);
       p.push();
       p.translate(x,y,0);
       p.noStroke();
@@ -114,46 +97,44 @@ new p5(p=>{
 
     drawCube(p,cube.x,cube.y,cube.o);
 
-    // overlay
-    if(drag){
+    if(dragStart){
       p.resetMatrix();
       p.translate(-p.width/2,-p.height/2);
       p.stroke(255);
-      p.line(drag.x0,drag.y0,p.mouseX,p.mouseY);
+      p.line(dragStart.x,dragStart.y,p.mouseX,p.mouseY);
     }
 
-    // solved?
-    const solved = goals.every(g =>
-      g.x===cube.x && g.y===cube.y && cube.o.top===g.color
-    );
+    const solved=goals.every(g=>g.x===cube.x&&g.y===cube.y&&cube.o.top===g.color);
     if(solved){
       p.resetMatrix();
       p.translate(-p.width/2,-p.height/2);
-      p.noStroke(); p.fill(255);
-      p.textSize(32);
+      p.fill(255);p.noStroke();p.textSize(32);
       p.text("Solved!",20,40);
     }
   };
 
-  p.mousePressed = ()=>{
-    drag = { x0:p.mouseX, y0:p.mouseY };
+  p.mousePressed=()=>{
+    dragStart={x:p.mouseX,y:p.mouseY};
   };
 
-  p.mouseReleased = ()=>{
-    if(!drag) return;
-    const dx = p.mouseX-drag.x0, dy = p.mouseY-drag.y0;
-    if(Math.hypot(dx,dy)>20){
-      let dir = Math.abs(dx)>Math.abs(dy)
-        ? (dx>0?'east':'west')
-        : (dy>0?'south':'north');
-      const nx = cube.x + (dir==='east')-(dir==='west');
-      const ny = cube.y + (dir==='south')-(dir==='north');
-      if(nx>=0&&nx<GRID&&ny>=0&&ny<GRID){
-        cube.x=nx; cube.y=ny;
-        cube.o = ROLL[dir](cube.o);
-      }
-    }
-    drag=null;
+  p.mouseReleased=()=>{
+    if(!dragStart) return;
+    const dx=p.mouseX-dragStart.x;
+    const dy=p.mouseY-dragStart.y;
+    dragStart=null;
+
+    if(Math.hypot(dx,dy)<25) return;
+
+    let dir = Math.abs(dx)>Math.abs(dy)
+      ? (dx>0?'east':'west')
+      : (dy>0?'south':'north');
+
+    const nx=cube.x+(dir==='east')-(dir==='west');
+    const ny=cube.y+(dir==='south')-(dir==='north');
+    if(nx<0||nx>=GRID||ny<0||ny>=GRID) return;
+
+    cube.x=nx; cube.y=ny;
+    cube.o=ROLL[dir](cube.o);
   };
 });
 </script>
