@@ -1,12 +1,22 @@
+function getBaseInfo() {
+  const segments = window.location.pathname.split("/").filter(Boolean);
+  const levelIdx = segments.indexOf("level");
+  const baseSegments = levelIdx === -1 ? (segments.length > 0 ? [segments[0]] : []) : segments.slice(0, levelIdx);
+  const basePath = baseSegments.join("/");
+  const baseUrl = basePath ? `${window.location.origin}/${basePath}/` : `${window.location.origin}/`;
+  return { segments, levelIdx, basePath, baseUrl };
+}
+
 function getLevelName() {
-  const parts = window.location.pathname.split("/").filter(Boolean);
-  if (parts.length === 0) return "tutorial";
-  // When served from a subpath like /Roll/, the pathname can be just the repo folder.
-  // If there's only one segment and the URL ends with a slash, treat it as root/tutorial.
-  if (parts.length === 1 && window.location.pathname.endsWith("/")) return "tutorial";
-  // Also handle the case without trailing slash: /Roll should map to tutorial, not "Roll".
-  if (parts.length === 1 && parts[0].toLowerCase() === "roll") return "tutorial";
-  const lastPart = parts[parts.length - 1];
+  const { segments, levelIdx } = getBaseInfo();
+  if (segments.length === 0) return "tutorial";
+  if (levelIdx !== -1) {
+    const candidate = segments[levelIdx + 1];
+    return candidate || "tutorial";
+  }
+  // When served from a subpath like /Roll/, a lone segment is just the repo name => tutorial
+  if (segments.length === 1) return "tutorial";
+  const lastPart = segments[segments.length - 1];
   if (!lastPart || lastPart === "index.html" || lastPart.endsWith(".html")) return "tutorial";
   return lastPart;
 }
@@ -35,6 +45,7 @@ function replayMoves(moves) {
 }
 
 async function loadLevel() {
+  const { baseUrl, basePath } = getBaseInfo();
   const level = getLevelName();
   
   // Check if reset parameter is present
@@ -46,8 +57,17 @@ async function loadLevel() {
     window.history.replaceState(null, "", cleanUrl);
   }
   
-  if (window.location.pathname === "/") window.history.replaceState(null, "", "./tutorial");
-  const baseUrl = new URL(".", window.location.href);
+  // Redirect base paths to /level/tutorial for consistency
+  const path = window.location.pathname;
+  const baseCandidates = ["/"];
+  if (basePath) {
+    baseCandidates.push(`/${basePath}`, `/${basePath}/`);
+  }
+  if (baseCandidates.includes(path)) {
+    window.location.replace(`${baseUrl}level/tutorial`);
+    return;
+  }
+
   const url = new URL(`levels/${level}.json`, baseUrl);
   try {
     const res = await fetch(url);

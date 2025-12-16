@@ -174,7 +174,7 @@
 
         const play = document.createElement("a");
         play.className = "button";
-        play.href = `./${level.id}?reset=1`;
+        play.href = `./level/${level.id}?reset=1`;
         play.textContent = "Play";
 
         footer.appendChild(left);
@@ -212,7 +212,7 @@
       function goToRandomLevel(levels) {
         if (!Array.isArray(levels) || levels.length === 0) return;
         const pick = levels[Math.floor(Math.random() * levels.length)];
-        window.location.href = `./${pick.id}`;
+        window.location.href = `./level/${pick.id}`;
       }
 
       function factoryReset() {
