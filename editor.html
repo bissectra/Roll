@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Cube Roll - Level Editor</title>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        background: #1a1a1a;
+        color: #fff;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      #top-bar {
+        height: auto;
+        background: #1a1a1a;
+        border-bottom: 1px solid #333;
+        display: flex;
+        gap: 0;
+        padding: 4px 0;
+        align-items: center;
+        overflow-x: auto;
+      }
+      .tab-btn {
+        padding: 6px 12px;
+        background: transparent;
+        color: #999;
+        border: none;
+        border-bottom: 2px solid transparent;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 500;
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+      .tab-btn:hover {
+        color: #ddd;
+      }
+      .tab-btn.active {
+        background: transparent;
+        color: #fff;
+        border-bottom-color: #0366d6;
+      }
+      .color-palette {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 4px;
+      }
+      .color-btn {
+        padding: 8px;
+        border: 1px solid #444;
+        border-radius: 0;
+        cursor: pointer;
+        transition: all 0.1s;
+        font-size: 9px;
+        font-weight: bold;
+        min-height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .color-btn.none {
+        background: #333 !important;
+        color: #999;
+      }
+      .color-btn:hover {
+        border-color: #666;
+      }
+      .color-btn.selected {
+        border-color: #fff;
+        border-width: 2px;
+      }
+      #main-content {
+        flex: 1;
+        display: flex;
+      }
+      #canvas-container {
+        flex: 1;
+        position: relative;
+      }
+      #sidebar {
+        width: 240px;
+        background: #1a1a1a;
+        border-left: 1px solid #333;
+        overflow-y: auto;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .section {
+        border-bottom: 1px solid #333;
+        padding-bottom: 12px;
+      }
+      .section:last-child {
+        border-bottom: none;
+      }
+      h2 {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+        color: #777;
+      }
+      .button-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      button {
+        padding: 6px 8px;
+        background: #333;
+        color: #fff;
+        border: 1px solid #444;
+        border-radius: 0;
+        cursor: pointer;
+        font-size: 11px;
+        transition: all 0.1s;
+      }
+      button:hover {
+        background: #444;
+      }
+      button.active {
+        background: #0366d6;
+        border-color: #0366d6;
+      }
+      button.danger {
+        background: #da3633;
+        border-color: #da3633;
+      }
+      button.danger:hover {
+        background: #f85149;
+        border-color: #f85149;
+      }
+      .info {
+        font-size: 10px;
+        color: #888;
+        padding: 6px;
+        background: transparent;
+        border-radius: 0;
+        line-height: 1.4;
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 6px;
+        background: #2a2a2a;
+        color: #fff;
+        border: 1px solid #444;
+        border-radius: 0;
+        font-size: 11px;
+        margin-bottom: 6px;
+      }
+      .json-export {
+        font-size: 9px;
+        color: #888;
+        padding: 6px;
+        background: #2a2a2a;
+        border-radius: 0;
+        border: 1px solid #444;
+        max-height: 100px;
+        overflow-y: auto;
+        word-break: break-all;
+        font-family: monospace;
+        display: none;
+      }
+      .status-bar {
+        font-size: 10px;
+        color: #666;
+        padding: 4px 6px;
+        background: transparent;
+        border-radius: 0;
+        border: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="top-bar">
+      <button class="tab-btn active" data-face="top">Top</button>
+      <button class="tab-btn" data-face="north">North</button>
+      <button class="tab-btn" data-face="east">East</button>
+      <button class="tab-btn" data-face="south">South</button>
+      <button class="tab-btn" data-face="west">West</button>
+      <button class="tab-btn" data-face="bottom">Bottom</button>
+      <button class="tab-btn" data-face="goal">Goal</button>
+    </div>
+
+    <div id="main-content">
+      <div id="canvas-container"></div>
+      <div id="sidebar">
+        <div class="section">
+          <h2>Colors</h2>
+          <div class="color-palette" id="color-palette"></div>
+          <div class="status-bar" id="color-status">Selected: yellow</div>
+        </div>
+
+        <div class="section">
+          <h2>Level Settings</h2>
+          <label style="font-size: 10px; color: #777;">Next Level</label>
+          <input type="text" id="next-level" placeholder="next level name" />
+        </div>
+
+        <div class="section">
+          <h2>Export / Import</h2>
+          <div class="status-bar" id="validation-status" style="margin-bottom: 6px;"></div>
+          <div class="button-group">
+            <button id="export-btn">Copy</button>
+            <button id="import-btn">Load</button>
+            <button id="save-btn">Download</button>
+          </div>
+        </div>
+
+        <pre class="json-export" id="json-output"></pre>
+      </div>
+    </div>
+
+    <script src="editor.js"></script>
+  </body>
+</html>
