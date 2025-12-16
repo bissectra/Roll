@@ -138,6 +138,7 @@
       let goals = [];
       let anim = null;
       let ready = false;
+      let nextLevel = null;
 
       let dragging = false;
       let dragDX = 0,
@@ -250,6 +251,7 @@
             o: { ...c.orientation },
           }));
           goals = data.goals || [];
+          nextLevel = data.nextLevel || null;
           ready = true;
 
           document.title = "Cube Roll – " + level;
@@ -368,6 +370,12 @@
             oldO: { ...pickedCube.o },
             newCube: false,
           };
+        };
+
+        p.keyPressed = () => {
+          if (goalsSatisfied() && nextLevel) {
+            window.location.pathname = `/${nextLevel}`;
+          }
         };
 
         p.windowResized = () => p.resizeCanvas(innerWidth, innerHeight);
