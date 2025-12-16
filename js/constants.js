@@ -1,5 +1,5 @@
 const GRID = 5;
-const CELL = 80;
+const CELL = 120;
 const CUBE = CELL * 0.85;
 const PICK_RADIUS = CELL * 0.45;
 const DRAG_THRESHOLD = 20;
