@@ -1,0 +1,17 @@
+{
+  "cubes": [
+    {
+      "x": 2,
+      "y": 2,
+      "orientation": {
+        "top": "yellow",
+        "bottom": "white",
+        "north": "green",
+        "south": "blue",
+        "east": "red",
+        "west": "orange"
+      }
+    }
+  ],
+  "goals": [{ "x": 3, "y": 2, "top": "yellow" }]
+}

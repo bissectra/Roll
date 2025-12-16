@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Cube Roll – Multi Cube MVP (Proper Picking)</title>
+    <title>Cube Roll</title>
     <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
     <style>
       html,
@@ -15,7 +15,7 @@
   </head>
 
   <body>
-    <!-- UI overlay (HTML, not p5) -->
+    <!-- UI overlay -->
     <div
       id="win"
       style="
@@ -206,20 +206,59 @@
       }
 
       /* =====================
-   Load level.json
-===================== */
-      async function loadLevel() {
-        const res = await fetch("level.json");
-        const data = await res.json();
-        cubes = data.cubes.map((c) => ({
-          x: c.x,
-          y: c.y,
-          o: { ...c.orientation },
-        }));
-        goals = data.goals || [];
-        ready = true;
+        Routing + level loading
+        ===================== */
+      function getLevelName() {
+        const parts = window.location.pathname.split("/").filter(Boolean);
+
+        // "/" → tutorial
+        if (parts.length === 0) {
+          return "tutorial";
+        }
+
+        const lastPart = parts[parts.length - 1];
+        // Handle file:// URLs or accessing index.html directly
+        if (!lastPart || lastPart === "index.html" || lastPart.endsWith(".html")) {
+          return "tutorial";
+        }
+
+        return lastPart;
       }
 
+      async function loadLevel() {
+        const level = getLevelName();
+
+        // canonical redirect for "/"
+        if (window.location.pathname === "/") {
+          window.history.replaceState(null, "", "./tutorial");
+        }
+
+        // 🔑 LET THE BROWSER RESOLVE THE PATH
+        // Resolve relative to index.html, not the current URL path
+        const baseUrl = window.location.origin + "/";
+        const url = new URL(`levels/${level}.json`, baseUrl);
+
+        try {
+          const res = await fetch(url);
+          if (!res.ok) throw new Error(res.status);
+
+          const data = await res.json();
+
+          cubes = data.cubes.map((c) => ({
+            x: c.x,
+            y: c.y,
+            o: { ...c.orientation },
+          }));
+          goals = data.goals || [];
+          ready = true;
+
+          document.title = "Cube Roll – " + level;
+          console.log("Loaded", url.href);
+        } catch (e) {
+          alert("Failed to load " + url.href);
+          console.error(e);
+        }
+      }
       /* =====================
    p5
 ===================== */
