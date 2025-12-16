@@ -4,15 +4,14 @@
       "x": 2,
       "y": 2,
       "orientation": {
-        "top": "yellow",
-        "bottom": "white",
+        "top": "white",
+        "bottom": "yellow",
         "north": "green",
         "south": "blue",
-        "east": "red",
-        "west": "orange"
+        "east": "orange",
+        "west": "red"
       }
     }
   ],
-  "goals": [{ "x": 3, "y": 2, "top": "yellow" }],
-  "nextLevel": "foo"
+  "goals": [{ "x": 2, "y": 0, "top": "yellow" }]
 }
