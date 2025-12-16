@@ -7,6 +7,12 @@ let cubes = [];
 let goals = [];
 let currentFace = "top";
 let selectedColor = "yellow";
+let levelName = "";
+let levelDescription = "";
+let levelDifficulty = "Medium";
+let starsThree = 0;
+let starsTwo = 0;
+let starsOne = 0;
 
 async function loadColors() {
   try {
@@ -67,11 +73,44 @@ function initializeUI() {
   document.getElementById("import-btn").onclick = importJSON;
   document.getElementById("save-btn").onclick = downloadJSON;
 
+  // Setup metadata inputs
+  document.getElementById("level-name").oninput = (e) => {
+    levelName = e.target.value;
+    updateJSON();
+  };
+  document.getElementById("level-description").oninput = (e) => {
+    levelDescription = e.target.value;
+    updateJSON();
+  };
+  document.getElementById("level-difficulty").onchange = (e) => {
+    levelDifficulty = e.target.value;
+    updateJSON();
+  };
+  document.getElementById("stars-three").oninput = (e) => {
+    starsThree = parseInt(e.target.value) || 0;
+    updateJSON();
+  };
+  document.getElementById("stars-two").oninput = (e) => {
+    starsTwo = parseInt(e.target.value) || 0;
+    updateJSON();
+  };
+  document.getElementById("stars-one").oninput = (e) => {
+    starsOne = parseInt(e.target.value) || 0;
+    updateJSON();
+  };
+
   updateJSON();
 }
 
 function updateJSON() {
-  const data = { cubes, goals };
+  const data = {
+    name: levelName,
+    description: levelDescription,
+    difficulty: levelDifficulty,
+    stars: { three: starsThree, two: starsTwo, one: starsOne },
+    cubes,
+    goals
+  };
   document.getElementById("json-output").textContent = JSON.stringify(data, null, 2);
   updateValidationStatus();
 }
@@ -96,8 +135,22 @@ function importJSON() {
   if (!json) return;
   try {
     const data = JSON.parse(json);
+    levelName = data.name || "";
+    levelDescription = data.description || "";
+    levelDifficulty = data.difficulty || "Medium";
+    starsThree = data.stars?.three || 0;
+    starsTwo = data.stars?.two || 0;
+    starsOne = data.stars?.one || 0;
     cubes = data.cubes || [];
     goals = data.goals || [];
+    
+    // Update input fields
+    document.getElementById("level-name").value = levelName;
+    document.getElementById("level-description").value = levelDescription;
+    document.getElementById("level-difficulty").value = levelDifficulty;
+    document.getElementById("stars-three").value = starsThree;
+    document.getElementById("stars-two").value = starsTwo;
+    document.getElementById("stars-one").value = starsOne;
     updateJSON();
   } catch (e) {
     alert("Invalid JSON: " + e.message);
@@ -161,14 +214,14 @@ function setGoalAtPosition(x, y, color) {
 
 function drawGridSquare(p, x, y, size, color) {
   if (color === "none") {
-    p.fill(40);
-    p.stroke(100);
+    p.fill(50);
+    p.stroke(80);
     p.strokeWeight(1);
     p.rect(x, y, size, size);
   } else {
     const [r, g, b] = COLORS[color];
     p.fill(...[r, g, b]);
-    p.stroke(100);
+    p.stroke(150);
     p.strokeWeight(2);
     p.rect(x, y, size, size);
   }
@@ -197,7 +250,7 @@ new p5((p) => {
   };
 
   p.draw = () => {
-    p.background(20);
+    p.background(30);
     if (!Object.keys(COLORS).length) return;
 
     // Calculate grid
@@ -217,8 +270,8 @@ new p5((p) => {
           if (goal) {
             drawGridSquare(p, px, py, squareSize, goal.top);
           } else {
-            p.fill(40);
-            p.stroke(100);
+            p.fill(50);
+            p.stroke(80);
             p.strokeWeight(1);
             p.rect(px, py, squareSize, squareSize);
           }
@@ -227,8 +280,8 @@ new p5((p) => {
           if (cube) {
             drawGridSquare(p, px, py, squareSize, cube.orientation[currentFace]);
           } else {
-            p.fill(40);
-            p.stroke(100);
+            p.fill(50);
+            p.stroke(80);
             p.strokeWeight(1);
             p.rect(px, py, squareSize, squareSize);
           }
