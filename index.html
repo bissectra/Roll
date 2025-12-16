@@ -18,21 +18,19 @@
 
   <body>
     <div id="nav">
-      <button type="button" onclick="window.location.href='./levels.html'" aria-label="Open level selector">Levels</button>
-      <button type="button" onclick="if(window.resetMoves) window.resetMoves();" aria-label="Reset moves">Reset</button>
+      <div class="nav-left">
+        <button type="button" onclick="window.location.href='./levels.html'" aria-label="Open level selector">Levels</button>
+        <button type="button" onclick="if(window.resetMoves) window.resetMoves();" aria-label="Reset moves">Reset</button>
+      </div>
+      <div class="nav-right">
+        <button type="button" id="level-info" aria-label="Current level info" disabled>Level (–, –, –)</button>
+      </div>
     </div>
     <div id="win">
       Level complete!
     </div>
-    <div id="hud">
-      <div id="hud-header">
-        <div id="hud-name">–</div>
-        <div id="hud-difficulty">–</div>
-      </div>
-      <div id="hud-description">–</div>
-      <div id="hud-stars"></div>
-    </div>
     <div id="hud-moves">0</div>
+    <div id="hud-desc-bottom" aria-live="polite">–</div>
 
     <script src="js/constants.js"></script>
     <script src="js/rendering.js"></script>

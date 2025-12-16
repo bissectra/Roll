@@ -28,11 +28,9 @@ const OPPOSITE_DIR = {
 };
 
 const winDiv = document.getElementById("win");
-const hudName = document.getElementById("hud-name");
-const hudDifficulty = document.getElementById("hud-difficulty");
-const hudDescription = document.getElementById("hud-description");
-const hudStars = document.getElementById("hud-stars");
 const hudMoves = document.getElementById("hud-moves");
+const levelInfoBtn = document.getElementById("level-info");
+const hudDescBottom = document.getElementById("hud-desc-bottom");
 
 function beginInteraction(p) {
   if (!ready || anim) return;

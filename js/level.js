@@ -87,23 +87,14 @@ async function loadLevel() {
     ready = true;
     document.title = "Cube Roll – " + level;
     
-    // Update HUD with level metadata
-    const hudName = document.getElementById("hud-name");
-    const hudDifficulty = document.getElementById("hud-difficulty");
-    const hudDescription = document.getElementById("hud-description");
-    const hudStars = document.getElementById("hud-stars");
-    
-    if (hudName) hudName.textContent = data.name || level;
-    if (hudDifficulty) hudDifficulty.textContent = data.difficulty || "–";
-    if (hudDescription) hudDescription.textContent = data.description || "–";
-    
-    // Update stars thresholds in HUD
-    if (hudStars && data.stars) {
-      const t1 = data.stars.one ?? "–";
-      const t2 = data.stars.two ?? "–";
-      const t3 = data.stars.three ?? "–";
-      hudStars.textContent = `★: ${t1} • ${t2} • ${t3}`;
-    }
+    // Update simplified HUD elements
+    const levelInfoBtn = document.getElementById("level-info");
+    const hudDescBottom = document.getElementById("hud-desc-bottom");
+    const t1 = data.stars && data.stars.one != null ? data.stars.one : "–";
+    const t2 = data.stars && data.stars.two != null ? data.stars.two : "–";
+    const t3 = data.stars && data.stars.three != null ? data.stars.three : "–";
+    if (levelInfoBtn) levelInfoBtn.textContent = `${data.name || level} (${t1}, ${t2}, ${t3})`;
+    if (hudDescBottom) hudDescBottom.textContent = data.description || "–";
     
     console.log("Loaded", url.href);
   } catch (e) {

@@ -18,7 +18,20 @@ body {
   position: fixed;
   top: 14px;
   left: 14px;
+  right: 14px;
   z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-left, .nav-right {
+  display: flex;
+  align-items: center;
+}
+
+.nav-left > button:first-child {
+  margin-left: 0;
 }
 
 /* Big, touch-friendly nav buttons */
@@ -56,71 +69,18 @@ body {
   transition: opacity 0.2s;
 }
 
-#hud {
+/* Bottom one-line level description next to move counter */
+#hud-desc-bottom {
   position: fixed;
-  top: 14px;
-  right: 14px;
+  bottom: 28px;
+  left: 120px; /* 20px left + 88px circle + 12px gap */
+  right: 20px;
   z-index: 10;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
   font-family: system-ui, sans-serif;
   font-size: 18px;
-  color: #e5e7eb;
-  max-width: 320px;
-}
-
-#hud-name {
-  background: rgba(17, 17, 17, 0.8);
-  border: 1px solid #2a2d34;
-  border-radius: 12px;
-  padding: 12px 16px;
-  font-weight: 800;
-  font-size: 20px;
-}
-
-#hud-header {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-#hud-header #hud-name {
-  flex: 1;
-  background: rgba(17, 17, 17, 0.8);
-  border: 1px solid #2a2d34;
-  border-radius: 12px;
-  padding: 12px 16px;
-  font-weight: 800;
-  font-size: 20px;
-}
-
-#hud-header #hud-difficulty {
-  background: rgba(17, 17, 17, 0.8);
-  border: 1px solid #2a2d34;
-  border-radius: 12px;
-  padding: 10px 14px;
-  font-size: 16px;
-  color: #9ca3af;
-  white-space: nowrap;
-}
-
-#hud-description {
-  background: rgba(17, 17, 17, 0.8);
-  border: 1px solid #2a2d34;
-  border-radius: 12px;
-  padding: 12px 14px;
-  font-size: 16px;
-  line-height: 1.55;
   color: #d1d5db;
-}
-
-#hud-stars {
-  background: rgba(17, 17, 17, 0.8);
-  border: 1px solid #2a2d34;
-  border-radius: 12px;
-  padding: 12px 14px;
-  font-size: 16px;
+  white-space: normal; /* allow wrapping */
+  overflow: visible;   /* show full text */
 }
 
 #hud-moves {
@@ -148,28 +108,9 @@ body {
     padding: 12px 18px;
   }
 
-  #hud {
+  #nav {
+    left: 10px;
     right: 10px;
-    top: 10px;
-    max-width: 260px;
-    font-size: 16px;
-    gap: 10px;
-  }
-
-  #hud-header #hud-name {
-    font-size: 18px;
-    padding: 12px 14px;
-  }
-
-  #hud-header #hud-difficulty {
-    font-size: 15px;
-    padding: 10px 12px;
-  }
-
-  #hud-description,
-  #hud-stars {
-    font-size: 15px;
-    padding: 10px 12px;
   }
 
   #hud-moves {
@@ -178,5 +119,12 @@ body {
     font-size: 28px;
     bottom: 16px;
     left: 14px;
+  }
+
+  #hud-desc-bottom {
+    bottom: 24px;
+    left: 96px; /* smaller circle position on mobile */
+    right: 12px;
+    font-size: 16px;
   }
 }
