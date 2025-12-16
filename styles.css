@@ -30,6 +30,24 @@ body {
   transform: translateY(-1px);
 }
 
+#nav button {
+  margin-left: 8px;
+  padding: 8px 12px;
+  background: rgba(17, 17, 17, 0.8);
+  color: #e5e7eb;
+  border: 1px solid #2a2d34;
+  border-radius: 10px;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+#nav button:hover {
+  background: rgba(40, 44, 52, 0.9);
+  transform: translateY(-1px);
+}
+
 #win {
   position: fixed;
   inset: 0;

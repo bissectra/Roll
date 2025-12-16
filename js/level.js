@@ -54,3 +54,20 @@ async function loadLevel() {
     console.error(e);
   }
 }
+
+// Clear move history for current level and reload level from JSON
+function resetMoves() {
+  try {
+    const levelName = getLevelName();
+    localStorage.removeItem(`moveHistory_${levelName}`);
+    moveHistory = [];
+    anim = null;
+    ready = false;
+    loadLevel();
+  } catch (e) {
+    console.error("Failed to reset moves", e);
+  }
+}
+
+// expose globally for UI bindings
+window.resetMoves = resetMoves;
