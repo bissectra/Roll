@@ -13,5 +13,6 @@
       }
     }
   ],
-  "goals": [{ "x": 1, "y": 2, "top": "yellow" }]
+  "goals": [{ "x": 1, "y": 2, "top": "yellow" }],
+  "nextLevel": "tutorial"
 }
