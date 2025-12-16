@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cube Roll – Levels</title>
+    <style>
+      :root { color-scheme: dark; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        min-height: 100vh;
+        font-family: system-ui, -apple-system, sans-serif;
+        background: #0f1116;
+        color: #f3f4f6;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      header { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+      .brand { font-weight: 700; letter-spacing: 0.4px; font-size: 16px; }
+      .actions { display: inline-flex; gap: 8px; flex-wrap: wrap; }
+      a.button, button.button {
+        padding: 8px 12px;
+        border-radius: 10px;
+        border: 1px solid #1f2733;
+        background: #161b22;
+        color: #f3f4f6;
+        text-decoration: none;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      a.button.secondary, button.button.secondary { background: transparent; color: #9ca3af; }
+      main { display: flex; flex-direction: column; gap: 12px; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+      .card {
+        border: 1px solid #1f2733;
+        background: #12151c;
+        border-radius: 12px;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .card h2 { font-size: 16px; }
+      .meta { color: #9ca3af; font-size: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+      .desc { color: #d1d5db; font-size: 14px; line-height: 1.4; }
+      .footer { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+      .small { color: #6b7280; font-size: 12px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand" aria-label="Cube Roll">
+        <span aria-hidden="true"></span>
+        Cube Roll
+      </div>
+      <div class="actions">
+        <a class="button secondary" href="./editor.html">Level editor</a>
+      </div>
+    </header>
+
+    <main>
+      <div class="actions" style="justify-content: flex-start;">
+        <button class="button" id="random-btn">Surprise me</button>
+      </div>
+
+      <div class="grid" id="levels-grid" aria-live="polite"></div>
+    </main>
+
+    <script>
+      const LEVEL_IDS = ["tutorial", "traffic"];
+      const grid = document.getElementById("levels-grid");
+
+      function createCard(level) {
+        const card = document.createElement("article");
+        card.className = "card";
+
+        const title = document.createElement("h2");
+        title.textContent = level.name || level.id;
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = `${level.difficulty || "Level"} • Par: ${level.par ?? "–"}`;
+
+        const desc = document.createElement("p");
+        desc.className = "desc";
+        desc.textContent = level.description || "";
+
+        const footer = document.createElement("div");
+        footer.className = "footer";
+
+        const left = document.createElement("div");
+        left.className = "small";
+        left.textContent = `levels/${level.id}.json`;
+
+        const play = document.createElement("a");
+        play.className = "button";
+        play.href = `./${level.id}`;
+        play.textContent = "Play";
+
+        footer.appendChild(left);
+        footer.appendChild(play);
+
+        card.appendChild(title);
+        card.appendChild(meta);
+        card.appendChild(desc);
+        card.appendChild(footer);
+
+        return card;
+      }
+
+      async function loadLevels() {
+        const levels = [];
+        for (const id of LEVEL_IDS) {
+          try {
+            const res = await fetch(`./levels/${id}.json`);
+            if (!res.ok) throw new Error(res.status);
+            const data = await res.json();
+            levels.push({ id, ...data });
+          } catch (err) {
+            console.error(`Failed to load level ${id}:`, err);
+          }
+        }
+        return levels;
+      }
+
+      function renderLevels(levels) {
+        grid.innerHTML = "";
+        levels.forEach((lvl) => grid.appendChild(createCard(lvl)));
+      }
+
+      function goToRandomLevel(levels) {
+        if (!Array.isArray(levetls) || levels.length === 0) return;
+        const pick = levels[Math.floor(Math.random() * levels.length)];
+        window.location.href = `./${pick.id}`;
+      }
+
+      (async () => {
+        const levels = await loadLevels();
+        renderLevels(levels);
+        document.getElementById("random-btn").addEventListener("click", () => goToRandomLevel(levels));
+      })();
+    </script>
+  </body>
+</html>

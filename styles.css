@@ -5,6 +5,31 @@ body {
   background: #111;
 }
 
+#nav {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 10;
+}
+
+#nav a {
+  display: inline-block;
+  padding: 8px 12px;
+  background: rgba(17, 17, 17, 0.8);
+  color: #e5e7eb;
+  border: 1px solid #2a2d34;
+  border-radius: 10px;
+  font-family: system-ui, sans-serif;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+#nav a:hover {
+  background: rgba(40, 44, 52, 0.9);
+  transform: translateY(-1px);
+}
+
 #win {
   position: fixed;
   inset: 0;

@@ -1,4 +1,8 @@
 {
+  "name": "Tutorial",
+  "description": "Learn the basic cube rolling mechanic in a single-step puzzle.",
+  "difficulty": "Easy",
+  "par": 1,
   "cubes": [
     {
       "x": 2,

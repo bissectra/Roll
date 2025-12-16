@@ -1,4 +1,8 @@
 {
+  "name": "Traffic Jam",
+  "description": "Guide three cubes into a straight lane without colliding on the way.",
+  "difficulty": "Medium",
+  "par": 6,
   "cubes": [
     {
       "x": 4,
