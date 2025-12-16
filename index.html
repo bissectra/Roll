@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>3D Drag MVP</title>
+<title>3D Drag + Picking MVP</title>
 <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
 <style>
 html,body{margin:0;background:#111}
@@ -15,20 +15,59 @@ const GRID = 5;
 const CELL = 80;
 const CUBE = CELL * 0.85;
 const DRAG_THRESHOLD = 20;
+const PICK_RADIUS = 40;
 
 /* ===== state ===== */
-let cube = { x: 2, y: 2 };
-let dragDX = 0, dragDY = 0;
+let cubes = [
+  { id:1, x:1, y:1 },
+  { id:2, x:3, y:1 },
+  { id:3, x:2, y:3 }
+];
+
+let activeCube = null;
 let dragging = false;
+let dragDX = 0, dragDY = 0;
 
 /* ===== helpers ===== */
 function inside(x,y){
   return x>=0 && x<GRID && y>=0 && y<GRID;
 }
 
+function occupied(x,y,ignore=null){
+  return cubes.some(c=>c!==ignore && c.x===x && c.y===y);
+}
+
 function world(x,y){
   const r = GRID * CELL / 2;
   return [-r + CELL/2 + x*CELL, -r + CELL/2 + y*CELL];
+}
+
+/* ===== picking ===== */
+function pickCube(p){
+  let best = null;
+  let bestDist = PICK_RADIUS;
+
+  cubes.forEach(c=>{
+    const [wx,wy] = world(c.x,c.y);
+    const wz = CUBE/2;
+
+    let sx, sy;
+    if (typeof p.screenPosition === "function") {
+      const v = p.screenPosition(wx, wy, wz);
+      sx = v.x; sy = v.y;
+    } else {
+      sx = p.width/2 + wx;
+      sy = p.height/2 + wy;
+    }
+
+    const d = Math.hypot(p.mouseX - sx, p.mouseY - sy);
+    if (d < bestDist) {
+      bestDist = d;
+      best = c;
+    }
+  });
+
+  return best;
 }
 
 /* ===== p5 ===== */
@@ -51,16 +90,18 @@ new p5(p=>{
       p.line(-r,t,0,r,t,0);
     }
 
-    /* cube */
-    const [cx,cy] = world(cube.x,cube.y);
-    p.push();
-    p.translate(cx,cy,CUBE/2);
-    p.noStroke();
-    p.fill(220);
-    p.box(CUBE);
-    p.pop();
+    /* cubes */
+    cubes.forEach(c=>{
+      const [cx,cy] = world(c.x,c.y);
+      p.push();
+      p.translate(cx,cy,CUBE/2);
+      p.noStroke();
+      p.fill(c===activeCube?255:200);
+      p.box(CUBE);
+      p.pop();
+    });
 
-    /* drag debug (screen space) */
+    /* drag debug */
     if(dragging){
       p.resetMatrix();
       p.translate(-p.width/2,-p.height/2);
@@ -74,8 +115,9 @@ new p5(p=>{
     }
   };
 
-  /* ===== drag handling ===== */
+  /* ===== input ===== */
   p.mousePressed = ()=>{
+    activeCube = pickCube(p);
     dragging = true;
     dragDX = dragDY = 0;
   };
@@ -90,6 +132,7 @@ new p5(p=>{
     if(!dragging) return;
     dragging = false;
 
+    if(!activeCube) return;
     if(Math.hypot(dragDX,dragDY) < DRAG_THRESHOLD) return;
 
     let dir =
@@ -97,13 +140,14 @@ new p5(p=>{
         ? (dragDX>0 ? "east" : "west")
         : (dragDY>0 ? "south" : "north");
 
-    const nx = cube.x + (dir==="east") - (dir==="west");
-    const ny = cube.y + (dir==="south") - (dir==="north");
+    const nx = activeCube.x + (dir==="east") - (dir==="west");
+    const ny = activeCube.y + (dir==="south") - (dir==="north");
 
-    if(inside(nx,ny)){
-      cube.x = nx;
-      cube.y = ny;
-    }
+    if(!inside(nx,ny)) return;
+    if(occupied(nx,ny,activeCube)) return;
+
+    activeCube.x = nx;
+    activeCube.y = ny;
   };
 
   p.windowResized = ()=>{
