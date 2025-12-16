@@ -1,148 +1,160 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>3D Drag + Picking MVP</title>
+<meta charset="utf-8" />
+<title>3D MVP – Picking + Colored Faces</title>
 <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
-<style>
-html,body{margin:0;background:#111}
-</style>
+<style>html,body{margin:0;background:#111}</style>
 </head>
 <body>
 <script>
-/* ===== parameters ===== */
 const GRID = 5;
 const CELL = 80;
 const CUBE = CELL * 0.85;
 const DRAG_THRESHOLD = 20;
-const PICK_RADIUS = 40;
+const PICK_RADIUS = 45;
 
-/* ===== state ===== */
+const COLORS = {
+  red:[255,60,60], green:[60,220,140], blue:[60,140,220],
+  yellow:[255,240,60], white:[240,240,250], orange:[255,165,0]
+};
+
 let cubes = [
   { id:1, x:1, y:1 },
   { id:2, x:3, y:1 },
-  { id:3, x:2, y:3 }
+  { id:3, x:2, y:3 },
 ];
 
 let activeCube = null;
 let dragging = false;
 let dragDX = 0, dragDY = 0;
 
-/* ===== helpers ===== */
-function inside(x,y){
-  return x>=0 && x<GRID && y>=0 && y<GRID;
-}
-
-function occupied(x,y,ignore=null){
-  return cubes.some(c=>c!==ignore && c.x===x && c.y===y);
-}
+function inside(x,y){ return x>=0 && x<GRID && y>=0 && y<GRID; }
+function occupied(x,y,ignore=null){ return cubes.some(c=>c!==ignore && c.x===x && c.y===y); }
 
 function world(x,y){
   const r = GRID * CELL / 2;
   return [-r + CELL/2 + x*CELL, -r + CELL/2 + y*CELL];
 }
 
-/* ===== picking ===== */
 function pickCube(p){
-  let best = null;
-  let bestDist = PICK_RADIUS;
-
-  cubes.forEach(c=>{
-    const [wx,wy] = world(c.x,c.y);
-    const wz = CUBE/2;
-
-    let sx, sy;
-    if (typeof p.screenPosition === "function") {
-      const v = p.screenPosition(wx, wy, wz);
-      sx = v.x; sy = v.y;
-    } else {
-      sx = p.width/2 + wx;
-      sy = p.height/2 + wy;
+  let best=null, bestD=PICK_RADIUS;
+  for(const c of cubes){
+    const [wx,wy]=world(c.x,c.y);
+    const wz=CUBE/2;
+    let sx,sy;
+    if(typeof p.screenPosition==="function"){
+      const v=p.screenPosition(wx,wy,wz);
+      sx=v.x; sy=v.y;
+    }else{
+      sx=p.width/2+wx; sy=p.height/2+wy;
     }
-
-    const d = Math.hypot(p.mouseX - sx, p.mouseY - sy);
-    if (d < bestDist) {
-      bestDist = d;
-      best = c;
-    }
-  });
-
+    const d=Math.hypot(p.mouseX-sx,p.mouseY-sy);
+    if(d<bestD){ bestD=d; best=c; }
+  }
   return best;
 }
 
-/* ===== p5 ===== */
+function quad(p, a,b,c,d, col){
+  p.push();
+  p.noStroke();
+  p.fill(...COLORS[col]);
+  // Use ambientMaterial so it stays visible under lights
+  p.ambientMaterial(...COLORS[col]);
+  p.beginShape();
+  p.vertex(a[0],a[1],a[2]);
+  p.vertex(b[0],b[1],b[2]);
+  p.vertex(c[0],c[1],c[2]);
+  p.vertex(d[0],d[1],d[2]);
+  p.endShape(p.CLOSE);
+  p.pop();
+}
+
+function drawRubikCube(p){
+  const h = CUBE/2;
+
+  // Define cube corners
+  const p000=[-h,-h,-h], p001=[-h,-h, h], p010=[-h, h,-h], p011=[-h, h, h];
+  const p100=[ h,-h,-h], p101=[ h,-h, h], p110=[ h, h,-h], p111=[ h, h, h];
+
+  // Faces (Rubik-style)
+  // top (+z): white
+  quad(p, p001,p101,p111,p011, "white");
+  // bottom (-z): yellow
+  quad(p, p000,p010,p110,p100, "yellow");
+  // north (+y): green
+  quad(p, p011,p111,p110,p010, "green");
+  // south (-y): blue
+  quad(p, p000,p100,p101,p001, "blue");
+  // east (+x): red
+  quad(p, p101,p100,p110,p111, "red");
+  // west (-x): orange
+  quad(p, p000,p001,p011,p010, "orange");
+}
+
 new p5(p=>{
-  p.setup = ()=>{
-    p.createCanvas(window.innerWidth, window.innerHeight, p.WEBGL);
-  };
+  p.setup=()=>p.createCanvas(window.innerWidth, window.innerHeight, p.WEBGL);
 
-  p.draw = ()=>{
+  p.draw=()=>{
     p.background(20);
-    p.lights();
 
-    /* grid */
+    // Simple stable lighting (avoid weirdness)
+    p.ambientLight(80);
+    p.directionalLight(200,200,200, 0.3,0.6,-1);
+
+    // Grid
     const r = GRID * CELL / 2;
-    p.stroke(150);
-    p.noFill();
+    p.stroke(160); p.noFill();
     for(let i=0;i<=GRID;i++){
       const t = -r + i*CELL;
       p.line(t,-r,0,t,r,0);
       p.line(-r,t,0,r,t,0);
     }
 
-    /* cubes */
-    cubes.forEach(c=>{
-      const [cx,cy] = world(c.x,c.y);
+    // Cubes
+    for(const c of cubes){
+      const [cx,cy]=world(c.x,c.y);
       p.push();
       p.translate(cx,cy,CUBE/2);
-      p.noStroke();
-      p.fill(c===activeCube?255:200);
-      p.box(CUBE);
+      drawRubikCube(p);
       p.pop();
-    });
+    }
 
-    /* drag debug */
+    // Drag debug line (screen space)
     if(dragging){
       p.resetMatrix();
-      p.translate(-p.width/2,-p.height/2);
+      p.translate(-p.width/2, -p.height/2);
       p.stroke(255);
-      p.line(
-        p.mouseX - dragDX,
-        p.mouseY - dragDY,
-        p.mouseX,
-        p.mouseY
-      );
+      p.line(p.mouseX-dragDX, p.mouseY-dragDY, p.mouseX, p.mouseY);
     }
   };
 
-  /* ===== input ===== */
-  p.mousePressed = ()=>{
+  p.mousePressed=()=>{
     activeCube = pickCube(p);
     dragging = true;
     dragDX = dragDY = 0;
   };
 
-  p.mouseDragged = ()=>{
+  p.mouseDragged=()=>{
     if(!dragging) return;
     dragDX += p.movedX;
     dragDY += p.movedY;
   };
 
-  p.mouseReleased = ()=>{
+  p.mouseReleased=()=>{
     if(!dragging) return;
     dragging = false;
 
     if(!activeCube) return;
-    if(Math.hypot(dragDX,dragDY) < DRAG_THRESHOLD) return;
+    if(Math.hypot(dragDX, dragDY) < DRAG_THRESHOLD) return;
 
-    let dir =
+    const dir =
       Math.abs(dragDX) > Math.abs(dragDY)
         ? (dragDX>0 ? "east" : "west")
         : (dragDY>0 ? "south" : "north");
 
     const nx = activeCube.x + (dir==="east") - (dir==="west");
     const ny = activeCube.y + (dir==="south") - (dir==="north");
-
     if(!inside(nx,ny)) return;
     if(occupied(nx,ny,activeCube)) return;
 
@@ -150,9 +162,7 @@ new p5(p=>{
     activeCube.y = ny;
   };
 
-  p.windowResized = ()=>{
-    p.resizeCanvas(window.innerWidth, window.innerHeight);
-  };
+  p.windowResized=()=>p.resizeCanvas(window.innerWidth, window.innerHeight);
 });
 </script>
 </body>
