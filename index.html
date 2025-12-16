@@ -36,61 +36,23 @@
         orange: [255, 165, 0],
       };
       const ROLL = {
-        north: (o) => ({
-          top: o.south,
-          bottom: o.north,
-          north: o.top,
-          south: o.bottom,
-          east: o.east,
-          west: o.west,
-        }),
-        south: (o) => ({
-          top: o.north,
-          bottom: o.south,
-          north: o.bottom,
-          south: o.top,
-          east: o.east,
-          west: o.west,
-        }),
-        east: (o) => ({
-          top: o.west,
-          bottom: o.east,
-          east: o.top,
-          west: o.bottom,
-          north: o.north,
-          south: o.south,
-        }),
-        west: (o) => ({
-          top: o.east,
-          bottom: o.west,
-          east: o.bottom,
-          west: o.top,
-          north: o.north,
-          south: o.south,
-        }),
+        north: (o) => ({ top: o.south, bottom: o.north, north: o.top, south: o.bottom, east: o.east, west: o.west }),
+        south: (o) => ({ top: o.north, bottom: o.south, north: o.bottom, south: o.top, east: o.east, west: o.west }),
+        east: (o) => ({ top: o.west, bottom: o.east, east: o.top, west: o.bottom, north: o.north, south: o.south }),
+        west: (o) => ({ top: o.east, bottom: o.west, east: o.bottom, west: o.top, north: o.north, south: o.south }),
       };
       function quad(p, a, b, c, d, color) {
         p.noStroke();
         p.fill(...COLORS[color]);
         p.beginShape();
-        p.vertex(...a);
-        p.vertex(...b);
-        p.vertex(...c);
-        p.vertex(...d);
+        [a, b, c, d].forEach(v => p.vertex(...v));
         p.endShape(p.CLOSE);
       }
 
       function drawCube(p, o) {
         const h = CUBE / 2;
-        const p000 = [-h, -h, -h],
-          p001 = [-h, -h, h],
-          p010 = [-h, h, -h],
-          p011 = [-h, h, h];
-        const p100 = [h, -h, -h],
-          p101 = [h, -h, h],
-          p110 = [h, h, -h],
-          p111 = [h, h, h];
-
+        const p000 = [-h, -h, -h], p001 = [-h, -h, h], p010 = [-h, h, -h], p011 = [-h, h, h];
+        const p100 = [h, -h, -h], p101 = [h, -h, h], p110 = [h, h, -h], p111 = [h, h, h];
         quad(p, p001, p101, p111, p011, o.top);
         quad(p, p000, p010, p110, p100, o.bottom);
         quad(p, p011, p111, p110, p010, o.south);
