@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Drag MVP</title>
+<title>3D Drag MVP</title>
 <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
 <style>
 html,body{margin:0;background:#111}
@@ -13,6 +13,7 @@ html,body{margin:0;background:#111}
 /* ===== parameters ===== */
 const GRID = 5;
 const CELL = 80;
+const CUBE = CELL * 0.85;
 const DRAG_THRESHOLD = 20;
 
 /* ===== state ===== */
@@ -25,44 +26,55 @@ function inside(x,y){
   return x>=0 && x<GRID && y>=0 && y<GRID;
 }
 
+function world(x,y){
+  const r = GRID * CELL / 2;
+  return [-r + CELL/2 + x*CELL, -r + CELL/2 + y*CELL];
+}
+
 /* ===== p5 ===== */
 new p5(p=>{
   p.setup = ()=>{
-    p.createCanvas(GRID*CELL, GRID*CELL);
+    p.createCanvas(window.innerWidth, window.innerHeight, p.WEBGL);
   };
 
   p.draw = ()=>{
     p.background(20);
+    p.lights();
 
-    // grid
-    p.stroke(120);
+    /* grid */
+    const r = GRID * CELL / 2;
+    p.stroke(150);
+    p.noFill();
     for(let i=0;i<=GRID;i++){
-      p.line(i*CELL,0,i*CELL,p.height);
-      p.line(0,i*CELL,p.width,i*CELL);
+      const t = -r + i*CELL;
+      p.line(t,-r,0,t,r,0);
+      p.line(-r,t,0,r,t,0);
     }
 
-    // cube
+    /* cube */
+    const [cx,cy] = world(cube.x,cube.y);
+    p.push();
+    p.translate(cx,cy,CUBE/2);
     p.noStroke();
-    p.fill(200);
-    p.rect(
-      cube.x*CELL+5,
-      cube.y*CELL+5,
-      CELL-10,
-      CELL-10
-    );
+    p.fill(220);
+    p.box(CUBE);
+    p.pop();
 
-    // drag line (debug)
+    /* drag debug (screen space) */
     if(dragging){
+      p.resetMatrix();
+      p.translate(-p.width/2,-p.height/2);
       p.stroke(255);
       p.line(
-        p.mouseX-dragDX,
-        p.mouseY-dragDY,
+        p.mouseX - dragDX,
+        p.mouseY - dragDY,
         p.mouseX,
         p.mouseY
       );
     }
   };
 
+  /* ===== drag handling ===== */
   p.mousePressed = ()=>{
     dragging = true;
     dragDX = dragDY = 0;
@@ -78,12 +90,12 @@ new p5(p=>{
     if(!dragging) return;
     dragging = false;
 
-    if(Math.hypot(dragDX, dragDY) < DRAG_THRESHOLD) return;
+    if(Math.hypot(dragDX,dragDY) < DRAG_THRESHOLD) return;
 
     let dir =
       Math.abs(dragDX) > Math.abs(dragDY)
-        ? (dragDX > 0 ? "east" : "west")
-        : (dragDY > 0 ? "south" : "north");
+        ? (dragDX>0 ? "east" : "west")
+        : (dragDY>0 ? "south" : "north");
 
     const nx = cube.x + (dir==="east") - (dir==="west");
     const ny = cube.y + (dir==="south") - (dir==="north");
@@ -92,6 +104,10 @@ new p5(p=>{
       cube.x = nx;
       cube.y = ny;
     }
+  };
+
+  p.windowResized = ()=>{
+    p.resizeCanvas(window.innerWidth, window.innerHeight);
   };
 });
 </script>
